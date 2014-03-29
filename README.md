@@ -1,4 +1,2 @@
-mgr-main
-========
-
-Mainly not used.
+navi-python-main
+===============
