@@ -4,20 +4,15 @@ import struct
 import thread
 import traceback
 
-from navi.driver import hokuyo, roboclaw
+from amber.common import amber_client
+from amber.hokuyo import hokuyo
+from amber.roboclaw import roboclaw
+
 from navi.proto import controlmsg_pb2
 from navi.tools import agent
 
 
 __author__ = 'paoolo'
-
-REAR_RC_ADDRESS = 128
-FRONT_RC_ADDRESS = 129
-
-MOTORS_MAX_QPPS = 13800
-MOTORS_P_CONST = 65536
-MOTORS_I_CONST = 32768
-MOTORS_D_CONST = 16384
 
 ADDRESS = '0.0.0.0'
 PORT = 1234
@@ -82,26 +77,22 @@ def main_thread(controller, driver):
         print 'main_thread: main down: %s' % str(e)
 
 
-def configure_robo(laser_port, robo_port):
-    laser = hokuyo.Hokuyo(laser_port)
-    laser.laser_on()
+def configure_robo(amber_ip):
+    client = amber_client.AmberClient(amber_ip)
 
-    robo_front = roboclaw.Roboclaw(robo_port, FRONT_RC_ADDRESS)
-    robo_rear = roboclaw.Roboclaw(robo_port, REAR_RC_ADDRESS)
-
-    for robo in (robo_front, robo_rear):
-        robo.set_m1_pidq(MOTORS_P_CONST, MOTORS_I_CONST, MOTORS_D_CONST, MOTORS_MAX_QPPS)
-        robo.set_m2_pidq(MOTORS_P_CONST, MOTORS_I_CONST, MOTORS_D_CONST, MOTORS_MAX_QPPS)
+    # FIXME(paoolo); what is the device_id=0?
+    laser = hokuyo.HokuyoProxy(client, 0)
+    robo = roboclaw.RoboclawProxy(client, 0)
 
     eye = agent.Eye(laser)
-    driver = agent.Driver(robo_front, robo_rear)
+    driver = agent.Driver(robo)
     controller = agent.Controller(eye, driver)
 
     return eye, driver, controller
 
 
-def main(laser_port, robo_port):
-    eye, driver, controller = configure_robo(laser_port, robo_port)
+def main(amber_ip):
+    eye, driver, controller = configure_robo(amber_ip)
 
     thread.start_new_thread(networking_thread, (controller, ))
     thread.start_new_thread(scanning_thread, (eye, ))

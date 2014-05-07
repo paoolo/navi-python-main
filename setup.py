@@ -23,7 +23,7 @@ setup(
     author=u'Paweł Suder',
     author_email='pawel@suder.info',
     url='http://dev.suder.info/',
-    download_url='http://github.com/paoolo/navi-python-main/',
+    download_url='http://github.com/dev-navi/navi-python-main/',
     keywords=['navi', 'hokuyo', 'roboclaw', 'panda'],
     classifiers=[
         'Programming Language :: Python',

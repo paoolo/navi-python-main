@@ -1,15 +1,9 @@
-import serial
-
-from navi.tools import app, serial_port
+from navi.tools import app
 
 
 __author__ = 'paoolo'
 
 if __name__ == '__main__':
-    laser_serial = serial.Serial(port="/dev/ttyACM0", baudrate=19200, timeout=0.1)
-    robo_serial = serial.Serial(port="/dev/ttyO3", baudrate=38400, timeout=0.1)
-
-    laser_port = serial_port.SerialPort(laser_serial)
-    robo_port = serial_port.SerialPort(robo_serial)
-
-    app.main(laser_port, robo_port)
+    amber_ip = raw_input('IP (default: 127.0.0.1): ')
+    amber_ip = '127.0.0.1' if amber_ip is None or len(amber_ip) == 0 else amber_ip
+    app.main(amber_ip)
