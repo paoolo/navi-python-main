@@ -1,7 +1,7 @@
 import socket
+import threading
 import time
 import struct
-import thread
 import traceback
 
 from amber.common import amber_client
@@ -18,87 +18,108 @@ ADDRESS = '0.0.0.0'
 PORT = 1234
 
 
-def networking_thread(controller):
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((ADDRESS, PORT))
-    server_socket.listen(5)
+class App(object):
+    def __init__(self, amber_ip):
+        self.__amber_ip = amber_ip
+        self.__cond = threading.Condition()
 
-    try:
-        # FIXME(paoolo): replace True for sth other
-        while True:
-            (client_socket, address) = server_socket.accept()
-            print 'networking_thread: client connected'
+        self.__server_socket = None
+        self.__client = None
+        self.__laser, self.__robo = None, None
+        self.__eye, self.__driver, self.__controller = None, None, None
+        self.__alive = True
+        self.__networking_thread, self.__scanning_thread = None, None
 
-            try:
-                # FIXME(paoolo): replace True for sth other
-                while True:
-                    data_to_read = client_socket.recv(2)
-                    if len(data_to_read) <= 0:
-                        break
+    def __networking_loop(self):
+        self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server_socket.bind((ADDRESS, PORT))
+        self.__server_socket.listen(5)
 
-                    data_to_read = struct.unpack('H', data_to_read)[0]
-                    if data_to_read > 0:
-                        data = client_socket.recv(data_to_read)
-                        msg = controlmsg_pb2.ControlMessage()
-                        msg.ParseFromString(data)
+        try:
+            while self.__alive:
+                (client_socket, address) = self.__server_socket.accept()
+                print 'networking_thread: client connected'
 
-                        if msg.type == controlmsg_pb2.SET:
-                            controller.set(msg.left, msg.right)
-                        elif msg.type == controlmsg_pb2.CHANGE:
-                            controller.change(msg.left, msg.right)
+                try:
+                    while self.__alive:
+                        data_to_read = client_socket.recv(2)
+                        if len(data_to_read) <= 0:
+                            break
 
-                print 'networking_thread: client disconnected'
-                controller.set(0, 0)
+                        data_to_read = struct.unpack('H', data_to_read)[0]
+                        if data_to_read > 0:
+                            data = client_socket.recv(data_to_read)
+                            msg = controlmsg_pb2.ControlMessage()
+                            msg.ParseFromString(data)
 
-            except BaseException as e:
-                traceback.print_exc()
-                print 'networking_thread: client error: %s' % str(e)
+                            if msg.type == controlmsg_pb2.SET:
+                                self.__controller.set(msg.left, msg.right)
+                            elif msg.type == controlmsg_pb2.CHANGE:
+                                self.__controller.change(msg.left, msg.right)
 
-    except BaseException as e:
-        traceback.print_exc()
-        print 'networking_thread: server down: %s' % str(e)
+                    print 'networking_thread: client disconnected'
+                    self.__controller.set(0, 0)
 
+                except BaseException as e:
+                    traceback.print_exc()
+                    print 'networking_thread: client error: %s' % str(e)
 
-def scanning_thread(eye):
-    try:
-        # FIXME(paoolo): replace True for sth other
-        while True:
-            eye.run()
-    except BaseException as e:
-        traceback.print_exc()
-        print 'scanning_thread: laser down: %s' % str(e)
+        except BaseException as e:
+            traceback.print_exc()
+            print 'networking_thread: server down: %s' % str(e)
 
+        print 'networking thread stop'
 
-def main_thread(controller, driver):
-    try:
-        # FIXME(paoolo): replace True for sth other
-        while True:
-            controller.run()
-            driver.run()
-            time.sleep(0.1)
-    except BaseException as e:
-        traceback.print_exc()
-        print 'main_thread: main down: %s' % str(e)
+    def __scanning_loop(self):
+        try:
+            while self.__alive:
+                self.__eye.run()
 
+                time.sleep(0.9)
+        except BaseException as e:
+            traceback.print_exc()
+            print 'scanning_thread: laser down: %s' % str(e)
 
-def configure_robo(amber_ip):
-    client = amber_client.AmberClient(amber_ip)
+        print 'scanning thread stop'
 
-    # FIXME(paoolo); what is the device_id=0?
-    laser = hokuyo.HokuyoProxy(client, 0)
-    robo = roboclaw.RoboclawProxy(client, 0)
+    def __controller_driver_thread(self):
+        try:
+            while self.__alive:
+                self.__controller.run()
+                self.__driver.run()
 
-    eye = agent.Eye(laser)
-    driver = agent.Driver(robo)
-    controller = agent.Controller(eye, driver)
+                time.sleep(0.1)
+        except BaseException as e:
+            traceback.print_exc()
+            print 'main_thread: main down: %s' % str(e)
 
-    return eye, driver, controller
+        print 'controller driver thread stop'
 
+    def __configure_robo(self):
+        self.__client = amber_client.AmberClient(self.__amber_ip)
 
-def main(amber_ip):
-    eye, driver, controller = configure_robo(amber_ip)
+        # FIXME(paoolo); what is the device_id=0?
+        self.__laser = hokuyo.HokuyoProxy(self.__client, 0)
+        self.__robo = roboclaw.RoboclawProxy(self.__client, 0)
 
-    thread.start_new_thread(networking_thread, (controller, ))
-    thread.start_new_thread(scanning_thread, (eye, ))
+        self.__eye = agent.Eye(self.__laser)
+        self.__driver = agent.Driver(self.__robo)
+        self.__controller = agent.Controller(self.__eye, self.__driver)
 
-    main_thread(controller, driver)
+    def main(self):
+        self.__configure_robo()
+
+        self.__networking_thread = threading.Thread(target=self.__networking_loop)
+        self.__networking_thread.start()
+        self.__scanning_thread = threading.Thread(target=self.__scanning_loop)
+        self.__scanning_thread.start()
+
+        self.__controller_driver_thread()
+
+    def terminate(self):
+        print 'terminate app'
+
+        self.__alive = False
+        # FIXME(paoolo); how ugly is this!
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', PORT))
+        self.__server_socket.close()

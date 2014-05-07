@@ -14,8 +14,6 @@ class Eye(object):
         return self.__scan
 
     def run(self):
-        # FIXME(paoolo): remove time.sleep for one second
-        time.sleep(1)
         self.__scan = self.__laser.get_single_scan()
 
 
