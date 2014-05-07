@@ -1,4 +1,2 @@
-mockito
 pyserial
-protobuf
 amber-python-clients
