@@ -24,11 +24,13 @@ def networking_thread(controller):
     server_socket.listen(5)
 
     try:
+        # FIXME(paoolo): replace True for sth other
         while True:
             (client_socket, address) = server_socket.accept()
             print 'networking_thread: client connected'
 
             try:
+                # FIXME(paoolo): replace True for sth other
                 while True:
                     data_to_read = client_socket.recv(2)
                     if len(data_to_read) <= 0:
@@ -59,6 +61,7 @@ def networking_thread(controller):
 
 def scanning_thread(eye):
     try:
+        # FIXME(paoolo): replace True for sth other
         while True:
             eye.run()
     except BaseException as e:
@@ -68,6 +71,7 @@ def scanning_thread(eye):
 
 def main_thread(controller, driver):
     try:
+        # FIXME(paoolo): replace True for sth other
         while True:
             controller.run()
             driver.run()
