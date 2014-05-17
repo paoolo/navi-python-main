@@ -120,3 +120,32 @@ def check_trajectory(scan, left, right):
         print 'Turn to %d (%d, %d)' % (new_angle, left, right)
 
     return left, right
+
+
+class Point():
+    def __init__(self, x, y, fi):
+        self.x, self.y, self.fi = x, y, fi
+
+
+def get_phase_angle(target, r):
+    return math.atan((target.y - r.y) / (target.x - r.x))
+
+
+def detect_if_oscillatory_motion():
+    pass
+
+
+def get_point_for_scan(distance, angle):
+    """
+    For values (distance, angle) from scan compute relative coordinates of point.
+
+    :param distance: number
+    :param angle: number [rad]
+    :return: tuple of two numbers (x, y)
+    """
+    return distance * math.sin(angle), distance * math.cos(angle)
+
+
+def do_it(scan):
+    for distance, angle in scan.items():
+        pass
