@@ -88,7 +88,7 @@ class App(object):
             while self.__alive:
                 self.__eye.run()
 
-                time.sleep(0.9)
+                time.sleep(0.2)
         except BaseException as e:
             traceback.print_exc()
             print 'scanner_thread: laser down: %s' % str(e)
@@ -101,7 +101,7 @@ class App(object):
                 self.__controller.run()
                 self.__driver.run()
 
-                time.sleep(0.1)
+                time.sleep(0.2)
         except BaseException as e:
             traceback.print_exc()
             print 'controller_thread: main down: %s' % str(e)

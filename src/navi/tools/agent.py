@@ -15,6 +15,7 @@ class Eye(object):
 
     def run(self):
         self.__scan = self.__laser.get_single_scan()
+        print 'get scan'
 
 
 class Driver(object):
@@ -43,6 +44,7 @@ class Driver(object):
         if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
             self.__old_left, self.__old_right = self.__left, self.__right
             self.__robo.send_motors_command(int(self.__left), int(self.__right), int(self.__left), int(self.__right))
+            print 'drive: %d, %d' % (self.__left, self.__right)
 
 
 class Controller(object):
@@ -77,6 +79,10 @@ class Controller(object):
 
             elif min_distance < 300:
                 left, right = 0, 0
+
+            print 'reduced: %d %d, min_distance: %d' % (left, right, min_distance)
+        else:
+            print 'no scan'
 
         self.__driver.set(left, right)
 
