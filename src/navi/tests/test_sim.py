@@ -4,6 +4,10 @@ import math
 import threading
 import time
 
+from amber.common import amber_client
+from amber.roboclaw import roboclaw
+
+
 __author__ = 'paoolo'
 
 ALPHA = 0.2
@@ -205,23 +209,6 @@ class Robot():
         self.set_turn(current_velocity + velocity, current_turn + turn)
 
 
-def where_i_can_drive(_scan):
-    for angle, distance in sorted(_scan.items()):
-        pass
-
-
-old_values = None
-values = (100, 100)
-
-scan = _generate_scan()
-print scan
-
-for step in range(1, 100):
-    values = low_pass_filter_values(values, old_values, ALPHA)
-    old_values = values
-    values = _modify_values_randomly(values)
-
-
 def drive_to_point(x, y, _time=0.1):
     angle = math.atan(y / x)
     distance = math.sqrt(x ** 2 + y ** 2)
@@ -336,8 +323,11 @@ class State(object):
             time.sleep(State.time_step)
 
     def driving(self):
+        client = amber_client.AmberClient('127.0.0.1')
+        robo = roboclaw.RoboclawProxy(client, 0)
         while self.alive:
-            # send value to robo
+            robo.send_motors_command(int(self.left * 10), int(self.right * 10),
+                                     int(self.left * 10), int(self.right * 10))
             time.sleep(State.time_step)
 
     def join(self):

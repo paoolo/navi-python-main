@@ -26,7 +26,7 @@ class App(object):
         self.__server_socket = None
         self.__client = None
         self.__laser, self.__robo = None, None
-        self.__eye, self.__driver, self.__controller = None, None, None
+        self.__eye, self.__driver, self.__controller, self.__randomize = None, None, None, None
         self.__alive = True
         self.__auto_thread, self.__manual_thread, self.__scanner_thread = None, None, None
 
@@ -54,6 +54,7 @@ class App(object):
 
                             if msg.type == controlmsg_pb2.SET:
                                 self.__controller.set(msg.left, msg.right)
+
                             elif msg.type == controlmsg_pb2.CHANGE:
                                 self.__controller.change(msg.left, msg.right)
 
@@ -73,9 +74,9 @@ class App(object):
     def __auto_loop(self):
         try:
             while self.__alive:
-                # TODO(paoolo): auto driver
-                time.sleep(0.2)
+                self.__randomize.run()
 
+                time.sleep(0.2)
         except BaseException as e:
             traceback.print_exc()
             print 'auto_thread: %s' % str(e)
@@ -116,6 +117,7 @@ class App(object):
         self.__eye = agent.Eye(self.__laser)
         self.__driver = agent.Driver(self.__robo)
         self.__controller = agent.Controller(self.__eye, self.__driver)
+        self.__randomize = agent.Randomize(self.__driver)
 
     def manual(self):
         self.__configure_robo()

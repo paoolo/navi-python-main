@@ -1,6 +1,6 @@
-import time
+import random
 
-from navi.tools.logic import calculate, check_trajectory
+from navi.tools.logic import calculate
 
 
 __author__ = 'paoolo'
@@ -61,7 +61,18 @@ class Controller(object):
         left, right = self.__left, self.__right
 
         scan = self.__eye.get()
-        if scan is not None:
-            left, right = check_trajectory(scan, left, right)
-
+        # TODO(paoolo): use this scan to determine the path!
         self.__driver.set(left, right)
+
+
+class Randomize(object):
+    def __init__(self, driver, randomizing_width=20.0):
+        self.__driver = driver
+        self.__randomizing_width = randomizing_width
+
+    def __randomize(self):
+        return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
+
+    def run(self):
+        left, right = self.__randomize(), self.__randomize()
+        self.__driver.change(left, right)
