@@ -61,7 +61,23 @@ class Controller(object):
         left, right = self.__left, self.__right
 
         scan = self.__eye.get()
-        # TODO(paoolo): use this scan to determine the path!
+        if scan is not None:
+            scan = scan.get_points()
+            min_distance = None
+
+            for angle, distance in scan.items():
+                if distance > 10 and -30.0 < angle < 30.0:
+                    if min_distance is None or distance < min_distance:
+                        min_distance = distance
+
+            if 300 < min_distance < 1200:
+                alpha = (min_distance - 300.0) / 900.0
+                left = int(left * alpha)
+                right = int(right * alpha)
+
+            elif min_distance < 300:
+                left, right = 0, 0
+
         self.__driver.set(left, right)
 
 
