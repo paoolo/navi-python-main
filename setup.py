@@ -11,14 +11,13 @@ with open('requirements.txt') as f:
 
 setup(
     name='navi-python-main',
-    packages=['navi', 'navi.driver', 'navi.proto', 'navi.tools', 'navi.tests'],
+    packages=['navi', 'navi.proto', 'navi.tools', 'navi.tests'],
     package_dir={'navi': 'src/navi',
-                 'navi.driver': 'src/navi/driver',
                  'navi.proto': 'src/navi/proto',
-                 'navi.tools': 'src/navi/tools',
-                 'navi.tests': 'src/navi/tests'},
+                 'navi.tests': 'src/navi/tests',
+                 'navi.tools': 'src/navi/tools'},
     install_requires=required,
-    version='1.0',
+    version='1.1',
     description='Navi tool for robo in python',
     author=u'Paweł Suder',
     author_email='pawel@suder.info',
