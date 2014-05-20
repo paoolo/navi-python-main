@@ -18,6 +18,15 @@ class Eye(object):
         self.__scan = scan
 
 
+MAX_SPEED = 700.0
+STOP_DIST = 300.0
+LIMIT_DIST = 1200.0
+
+
+def get_max_speed(distance):
+    return MAX_SPEED / (LIMIT_DIST - STOP_DIST) * float(distance) - (MAX_SPEED * STOP_DIST) / (LIMIT_DIST - STOP_DIST)
+
+
 class Driver(object):
     def __init__(self, robo):
         self.__robo = robo
@@ -43,6 +52,10 @@ class Driver(object):
     def run(self):
         if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
             self.__old_left, self.__old_right = self.__left, self.__right
+
+            self.__left = MAX_SPEED if self.__left > MAX_SPEED else -MAX_SPEED if self.__left < -MAX_SPEED else self.__left
+            self.__right = MAX_SPEED if self.__right > MAX_SPEED else -MAX_SPEED if self.__right < -MAX_SPEED else self.__right
+
             self.__robo.send_motors_command(int(self.__left), int(self.__right), int(self.__left), int(self.__right))
         print 'drive: %d, %d' % (self.__left, self.__right)
 
@@ -72,23 +85,23 @@ class Controller(object):
                 min_distance = None
 
                 for angle, distance in scan.items():
-                    if distance > 10 and cur_angle - 30.0 < angle < cur_angle + 30.0:
+                    if distance > 30 and cur_angle - 30.0 < angle < cur_angle + 30.0:
                         if min_distance is None or distance < min_distance:
                             min_distance = distance
 
-                if 300 < min_distance < 1200:
-                    alpha = (min_distance - 300.0) / 900.0
-                    left = int(left * alpha)
-                    right = int(right * alpha)
+                if STOP_DIST < min_distance < LIMIT_DIST:
+                    max_speed = get_max_speed(min_distance)
+                    left = max_speed if left > max_speed else left
+                    right = max_speed if right > max_speed else right
 
-                elif min_distance < 300:
+                elif min_distance <= STOP_DIST:
                     left, right = 0, 0
 
                 print 'distance: %d' % min_distance
             else:
                 print 'no scan!'
 
-            self.__driver.set(left, right)
+        self.__driver.set(left, right)
 
 
 class Randomize(object):
