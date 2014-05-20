@@ -76,24 +76,12 @@ class App(object):
             while self.__alive:
                 self.__randomize.run()
 
-                time.sleep(0.2)
+                time.sleep(0.07)
         except BaseException as e:
             traceback.print_exc()
             print 'auto_thread: %s' % str(e)
 
         print 'auto thread stop'
-
-    def __scanner_loop(self):
-        try:
-            while self.__alive:
-                self.__eye.run()
-
-                time.sleep(0.2)
-        except BaseException as e:
-            traceback.print_exc()
-            print 'scanner_thread: laser down: %s' % str(e)
-
-        print 'scanner thread stop'
 
     def __controller_loop(self):
         try:
@@ -101,7 +89,7 @@ class App(object):
                 self.__controller.run()
                 self.__driver.run()
 
-                time.sleep(0.2)
+                time.sleep(0.07)
         except BaseException as e:
             traceback.print_exc()
             print 'controller_thread: main down: %s' % str(e)
@@ -124,8 +112,6 @@ class App(object):
 
         self.__manual_thread = threading.Thread(target=self.__manual_loop)
         self.__manual_thread.start()
-        self.__scanner_thread = threading.Thread(target=self.__scanner_loop)
-        self.__scanner_thread.start()
 
         self.__controller_loop()
 
@@ -134,8 +120,6 @@ class App(object):
 
         self.__auto_thread = threading.Thread(target=self.__auto_loop)
         self.__auto_thread.start()
-        self.__scanner_thread = threading.Thread(target=self.__scanner_loop)
-        self.__scanner_thread.start()
 
         self.__controller_loop()
 

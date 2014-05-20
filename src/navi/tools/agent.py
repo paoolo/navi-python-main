@@ -1,6 +1,6 @@
 import random
 
-from navi.tools.logic import calculate
+from navi.tools.logic import calculate, get_angle
 
 
 __author__ = 'paoolo'
@@ -9,13 +9,13 @@ __author__ = 'paoolo'
 class Eye(object):
     def __init__(self, laser):
         self.__laser, self.__scan = laser, None
+        self.__laser.subscribe(self)
 
     def get(self):
         return self.__scan
 
-    def run(self):
-        self.__scan = self.__laser.get_single_scan()
-        print 'get scan'
+    def handle(self, scan):
+        self.__scan = scan
 
 
 class Driver(object):
@@ -44,7 +44,7 @@ class Driver(object):
         if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
             self.__old_left, self.__old_right = self.__left, self.__right
             self.__robo.send_motors_command(int(self.__left), int(self.__right), int(self.__left), int(self.__right))
-            print 'drive: %d, %d' % (self.__left, self.__right)
+        print 'drive: %d, %d' % (self.__left, self.__right)
 
 
 class Controller(object):
@@ -61,6 +61,8 @@ class Controller(object):
 
     def run(self):
         left, right = self.__left, self.__right
+        cur_angle = get_angle(left, right, 450)
+        print 'cur angle: %d' % cur_angle
 
         scan = self.__eye.get()
         if scan is not None:
@@ -68,7 +70,7 @@ class Controller(object):
             min_distance = None
 
             for angle, distance in scan.items():
-                if distance > 10 and -30.0 < angle < 30.0:
+                if distance > 10 and cur_angle - 30.0 < angle < cur_angle + 30.0:
                     if min_distance is None or distance < min_distance:
                         min_distance = distance
 
@@ -80,9 +82,9 @@ class Controller(object):
             elif min_distance < 300:
                 left, right = 0, 0
 
-            print 'reduced: %d %d, min_distance: %d' % (left, right, min_distance)
+            print 'distance: %d' % min_distance
         else:
-            print 'no scan'
+            print 'no scan!'
 
         self.__driver.set(left, right)
 

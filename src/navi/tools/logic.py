@@ -35,6 +35,10 @@ def bound_speed(speed, distance):
 ANGLE = 20
 
 
+def get_angle(left, right, robo_width):
+    return math.degrees(math.atan((left - right) / robo_width))
+
+
 def get_linear_speed(left, right):
     linear_speed = (left + right) / 2.0
     return linear_speed
