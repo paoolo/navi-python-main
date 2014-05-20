@@ -61,32 +61,34 @@ class Controller(object):
 
     def run(self):
         left, right = self.__left, self.__right
-        cur_angle = get_angle(left, right, 450)
-        print 'cur angle: %d' % cur_angle
 
-        scan = self.__eye.get()
-        if scan is not None:
-            scan = scan.get_points()
-            min_distance = None
+        if left > 0 or right > 0:
+            cur_angle = get_angle(left, right, 450)
+            print 'cur angle: %d' % cur_angle
 
-            for angle, distance in scan.items():
-                if distance > 10 and cur_angle - 30.0 < angle < cur_angle + 30.0:
-                    if min_distance is None or distance < min_distance:
-                        min_distance = distance
+            scan = self.__eye.get()
+            if scan is not None:
+                scan = scan.get_points()
+                min_distance = None
 
-            if 300 < min_distance < 1200:
-                alpha = (min_distance - 300.0) / 900.0
-                left = int(left * alpha)
-                right = int(right * alpha)
+                for angle, distance in scan.items():
+                    if distance > 10 and cur_angle - 30.0 < angle < cur_angle + 30.0:
+                        if min_distance is None or distance < min_distance:
+                            min_distance = distance
 
-            elif min_distance < 300:
-                left, right = 0, 0
+                if 300 < min_distance < 1200:
+                    alpha = (min_distance - 300.0) / 900.0
+                    left = int(left * alpha)
+                    right = int(right * alpha)
 
-            print 'distance: %d' % min_distance
-        else:
-            print 'no scan!'
+                elif min_distance < 300:
+                    left, right = 0, 0
 
-        self.__driver.set(left, right)
+                print 'distance: %d' % min_distance
+            else:
+                print 'no scan!'
+
+            self.__driver.set(left, right)
 
 
 class Randomize(object):
