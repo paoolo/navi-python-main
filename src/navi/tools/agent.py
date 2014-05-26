@@ -138,9 +138,9 @@ class Randomize(object):
 
             if min_distance < LIMIT_DIST / 2.0:
                 if random.random() < 0.5:
-                    self.__left = -self.__left
+                    self.__left = -self.__right
                 else:
-                    self.__right = -self.__right
+                    self.__right = -self.__left
 
         if (self.__left + self.__right) / 2.0 < 0:
             if self.__left < 0 and self.__right < 0:
