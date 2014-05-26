@@ -9,13 +9,13 @@ from amber.hokuyo import hokuyo
 from amber.roboclaw import roboclaw
 
 from navi.proto import controlmsg_pb2
-from navi.tools import agent
+from navi.tools import agent, config
 
 
 __author__ = 'paoolo'
 
-ADDRESS = '0.0.0.0'
-PORT = 1234
+ADDRESS = str(config.ADDRESS)
+PORT = int(config.PORT)
 
 
 class App(object):
@@ -105,7 +105,7 @@ class App(object):
         self.__eye = agent.Eye(self.__laser)
         self.__driver = agent.Driver(self.__robo)
         self.__controller = agent.Controller(self.__eye, self.__driver)
-        self.__randomize = agent.Randomize(self.__driver)
+        self.__randomize = agent.Randomize(self.__eye, self.__controller)
 
     def manual(self):
         self.__configure_robo()
@@ -128,5 +128,8 @@ class App(object):
 
         self.__alive = False
         # FIXME(paoolo); how ugly is this!
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', PORT))
-        self.__server_socket.close()
+        try:
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', PORT))
+            self.__server_socket.close()
+        except:
+            pass

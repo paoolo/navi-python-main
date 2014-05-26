@@ -1,11 +1,11 @@
 import math
 
+from navi.tools import config
+
+
 __author__ = 'paoolo'
 
-HALF_ROBO = 160.0
-
-SOFT_LIMIT = 450.0
-HARD_LIMIT = 200.0
+HALF_ROBO = float(config.HALF_ROBO)
 
 
 def calculate(radius, linear_speed, angular_speed):
@@ -23,16 +23,18 @@ def calculate(radius, linear_speed, angular_speed):
     return left, right
 
 
+HARD_LIMIT = float(config.HARD_LIMIT)
+SOFT_LIMIT = float(config.SOFT_LIMIT)
+
+
 def bound_speed(speed, distance):
     if distance < HARD_LIMIT:
         return 0
     elif HARD_LIMIT <= distance < SOFT_LIMIT:
-        return (speed / (SOFT_LIMIT - HARD_LIMIT)) * distance - (speed * HARD_LIMIT) / (SOFT_LIMIT - HARD_LIMIT)
+        return (speed / (SOFT_LIMIT - HARD_LIMIT)) * distance - \
+               (speed * HARD_LIMIT) / (SOFT_LIMIT - HARD_LIMIT)
     else:
         return speed
-
-
-ANGLE = 20
 
 
 def get_angle(left, right, robo_width):
@@ -83,6 +85,9 @@ def change_angle(angle, left, right):
     return left, right
 
 
+ANGLE = float(config.ANGLE)
+
+
 def check_trajectory(scan, left, right):
     min_distance = None
     left_angle, right_angle = None, None
@@ -124,3 +129,13 @@ def check_trajectory(scan, left, right):
         print 'Turn to %d (%d, %d)' % (new_angle, left, right)
 
     return left, right
+
+
+MAX_SPEED = float(config.MAX_SPEED)
+LIMIT_DIST = float(config.LIMIT_DIST)
+STOP_DIST = float(config.STOP_DIST)
+
+
+def get_max_speed(distance):
+    return MAX_SPEED / (LIMIT_DIST - STOP_DIST) * float(distance) - \
+           (MAX_SPEED * STOP_DIST) / (LIMIT_DIST - STOP_DIST)

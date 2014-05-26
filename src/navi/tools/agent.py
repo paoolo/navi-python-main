@@ -1,6 +1,6 @@
 import random
 
-from navi.tools.logic import calculate, get_angle
+from navi.tools import logic, config
 
 
 __author__ = 'paoolo'
@@ -18,13 +18,7 @@ class Eye(object):
         self.__scan = scan
 
 
-MAX_SPEED = 700.0
-STOP_DIST = 300.0
-LIMIT_DIST = 1200.0
-
-
-def get_max_speed(distance):
-    return MAX_SPEED / (LIMIT_DIST - STOP_DIST) * float(distance) - (MAX_SPEED * STOP_DIST) / (LIMIT_DIST - STOP_DIST)
+MAX_SPEED = float(config.MAX_SPEED)
 
 
 class Driver(object):
@@ -37,7 +31,7 @@ class Driver(object):
         self.__left, self.__right = left, right
 
     def set_circular(self, radius, linear_speed, angular_speed):
-        left, right = calculate(radius, linear_speed, angular_speed)
+        left, right = logic.calculate(radius, linear_speed, angular_speed)
         self.__left, self.__right = left, right
 
     def change(self, left, right):
@@ -45,7 +39,7 @@ class Driver(object):
         self.__right += right
 
     def change_circular(self, radius, linear_speed, angular_speed):
-        left, right = calculate(radius, linear_speed, angular_speed)
+        left, right = logic.calculate(radius, linear_speed, angular_speed)
         self.__left += left
         self.__right += right
 
@@ -53,11 +47,34 @@ class Driver(object):
         if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
             self.__old_left, self.__old_right = self.__left, self.__right
 
-            self.__left = MAX_SPEED if self.__left > MAX_SPEED else -MAX_SPEED if self.__left < -MAX_SPEED else self.__left
-            self.__right = MAX_SPEED if self.__right > MAX_SPEED else -MAX_SPEED if self.__right < -MAX_SPEED else self.__right
+            self.__left = MAX_SPEED if self.__left > MAX_SPEED else \
+                -MAX_SPEED if self.__left < -MAX_SPEED else self.__left
+            self.__right = MAX_SPEED if self.__right > MAX_SPEED else \
+                -MAX_SPEED if self.__right < -MAX_SPEED else self.__right
 
             self.__robo.send_motors_command(int(self.__left), int(self.__right), int(self.__left), int(self.__right))
         print 'drive: %d, %d' % (self.__left, self.__right)
+
+
+MIN_SCANNER_RANGE = float(config.MIN_SCANNER_RANGE)
+ANGLE_RANGE = float(config.ANGLE_RANGE)
+STOP_DIST = float(config.STOP_DIST)
+LIMIT_DIST = float(config.LIMIT_DIST)
+
+
+def get_min_distance(scan, current_angle):
+    scan = scan.get_points()
+    min_distance = None
+
+    for angle, distance in scan.items():
+        if distance > MIN_SCANNER_RANGE and current_angle - ANGLE_RANGE < angle < current_angle + ANGLE_RANGE:
+            if min_distance is None or distance < min_distance:
+                min_distance = distance
+
+    return min_distance
+
+
+ROBO_WIDTH = float(config.ROBO_WIDTH)
 
 
 class Controller(object):
@@ -69,6 +86,7 @@ class Controller(object):
         self.__left, self.__right = left, right
 
     def change(self, left, right):
+        print 'change: %d, %d' % (left, right)
         self.__left += left
         self.__right += right
 
@@ -76,21 +94,15 @@ class Controller(object):
         left, right = self.__left, self.__right
 
         if left > 0 or right > 0:
-            cur_angle = get_angle(left, right, 450)
-            print 'cur angle: %d' % cur_angle
+            current_angle = logic.get_angle(left, right, ROBO_WIDTH)
+            print 'cur angle: %d' % current_angle
 
             scan = self.__eye.get()
             if scan is not None:
-                scan = scan.get_points()
-                min_distance = None
-
-                for angle, distance in scan.items():
-                    if distance > 30 and cur_angle - 30.0 < angle < cur_angle + 30.0:
-                        if min_distance is None or distance < min_distance:
-                            min_distance = distance
+                min_distance = get_min_distance(scan, current_angle)
 
                 if STOP_DIST < min_distance < LIMIT_DIST:
-                    max_speed = get_max_speed(min_distance)
+                    max_speed = logic.get_max_speed(min_distance)
                     left = max_speed if left > max_speed else left
                     right = max_speed if right > max_speed else right
 
@@ -105,13 +117,39 @@ class Controller(object):
 
 
 class Randomize(object):
-    def __init__(self, driver, randomizing_width=20.0):
-        self.__driver = driver
+    def __init__(self, eye, controller, randomizing_width=10.0):
+        self.__eye, self.__controller = eye, controller
         self.__randomizing_width = randomizing_width
+        self.__left, self.__right = 0.0, 0.0
 
     def __randomize(self):
         return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
 
     def run(self):
-        left, right = self.__randomize(), self.__randomize()
-        self.__driver.change(left, right)
+        self.__left += (self.__randomize() * 10)
+        self.__right += (self.__randomize() * 10)
+
+        current_angle = logic.get_angle(self.__left, self.__right, ROBO_WIDTH)
+
+        scan = self.__eye.get()
+
+        if scan is not None:
+            min_distance = get_min_distance(scan, current_angle)
+
+            if min_distance < LIMIT_DIST / 2.0:
+                if random.random() < 0.5:
+                    self.__left = -self.__left
+                else:
+                    self.__right = -self.__right
+
+        if (self.__left + self.__right) / 2.0 < 0:
+            if self.__left < 0 and self.__right < 0:
+                self.__left, self__right = 0.0, 0.0
+
+            elif self.__left < 0:
+                self.__left = -self.__right
+
+            elif self.__right < 0:
+                self.__right = -self.__left
+
+        self.__controller.set(self.__left, self.__right)
