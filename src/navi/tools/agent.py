@@ -112,6 +112,7 @@ class Controller(object):
                 print 'distance: %d' % min_distance
             else:
                 print 'no scan!'
+                left, right = 0.0, 0.0
 
         self.__driver.set(left, right)
 
@@ -136,11 +137,18 @@ class Randomize(object):
         if scan is not None:
             min_distance = get_min_distance(scan, current_angle)
 
-            if min_distance < LIMIT_DIST / 2.0:
+            if min_distance < STOP_DIST * 2.0:
                 if random.random() < 0.5:
                     self.__left = -self.__right
                 else:
                     self.__right = -self.__left
+            else:
+                if random.random() < 0.5:
+                    self.__left = self.__right
+                else:
+                    self.__right = self.__left
+        else:
+            self.__left, self.__right = 0.0, 0.0
 
         if (self.__left + self.__right) / 2.0 < 0:
             if self.__left < 0 and self.__right < 0:
