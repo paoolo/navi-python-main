@@ -102,9 +102,13 @@ class Controller(object):
                 min_distance = get_min_distance(scan, current_angle)
 
                 if STOP_DIST < min_distance < LIMIT_DIST:
+                    current_speed = (left + right) / 2.0
                     max_speed = logic.get_max_speed(min_distance)
-                    left = max_speed if left > max_speed else left
-                    right = max_speed if right > max_speed else right
+
+                    if current_speed > max_speed:
+                        divide = max_speed / current_speed
+                        left = left * divide
+                        right = right * divide
 
                 elif min_distance <= STOP_DIST:
                     left, right = 0, 0
