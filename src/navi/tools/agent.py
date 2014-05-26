@@ -126,8 +126,8 @@ class Randomize(object):
         return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
 
     def run(self):
-        self.__left += (self.__randomize() * 10)
-        self.__right += (self.__randomize() * 10)
+        self.__left += (self.__randomize() * 20)
+        self.__right += (self.__randomize() * 20)
 
         current_angle = logic.get_angle(self.__left, self.__right, ROBO_WIDTH)
 
