@@ -133,8 +133,8 @@ class Randomize(object):
         return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
 
     def run(self):
-        self.__left += (self.__randomize() * 20)
-        self.__right += (self.__randomize() * 20)
+        self.__left += (self.__randomize() * 40)
+        self.__right += (self.__randomize() * 40)
 
         left, right = self.__left, self.__right
 
