@@ -104,20 +104,20 @@ class Controller(object):
             scan = self.__eye.get()
             if scan is not None:
                 min_distance, _ = get_min_distance(scan, current_angle)
+                if min_distance is not None:
+                    if HARD_LIMIT < min_distance < SOFT_LIMIT:
+                        current_speed = (left + right) / 2.0
+                        max_speed = logic.get_max_speed(min_distance)
 
-                if HARD_LIMIT < min_distance < SOFT_LIMIT:
-                    current_speed = (left + right) / 2.0
-                    max_speed = logic.get_max_speed(min_distance)
+                        if current_speed > max_speed:
+                            divide = max_speed / current_speed
+                            left = left * divide
+                            right = right * divide
 
-                    if current_speed > max_speed:
-                        divide = max_speed / current_speed
-                        left = left * divide
-                        right = right * divide
+                    elif min_distance <= HARD_LIMIT:
+                        left, right = 0, 0
 
-                elif min_distance <= HARD_LIMIT:
-                    left, right = 0, 0
-
-                print 'distance: %d' % min_distance
+                    print 'distance: %d' % min_distance
             else:
                 print 'no scan!'
                 left, right = 0.0, 0.0
@@ -146,8 +146,7 @@ class Randomize(object):
 
         if scan is not None:
             min_distance, min_distance_angle = get_min_distance(scan, current_angle)
-
-            if min_distance < HARD_LIMIT * 1.2:
+            if min_distance is not None and min_distance < HARD_LIMIT * 1.2:
                 if min_distance_angle < current_angle:
                     # go to right
                     if left > 0:
