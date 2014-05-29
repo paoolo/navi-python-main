@@ -135,8 +135,8 @@ class Randomize(object):
         return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
 
     def run(self):
-        self.__left += (self.__randomize() * 40)
-        self.__right += (self.__randomize() * 40)
+        self.__left += (self.__randomize() * 20)
+        self.__right += (self.__randomize() * 20)
 
         self.__left = self.__left if self.__left < MAX_SPEED else MAX_SPEED
         self.__right = self.__right if self.__right < MAX_SPEED else MAX_SPEED
@@ -149,7 +149,7 @@ class Randomize(object):
 
         if scan is not None:
             min_distance, min_distance_angle = get_min_distance(scan, current_angle)
-            if min_distance is not None and min_distance < HARD_LIMIT * 1.2:
+            if min_distance is not None and min_distance < HARD_LIMIT * 1.9:
                 if min_distance_angle < current_angle:
                     # go to right
                     if left > 0:
