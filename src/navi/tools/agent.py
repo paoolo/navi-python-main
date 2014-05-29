@@ -126,7 +126,7 @@ class Controller(object):
 
 
 class Randomize(object):
-    def __init__(self, eye, controller, randomizing_width=10.0):
+    def __init__(self, eye, controller, randomizing_width=4.0):
         self.__eye, self.__controller = eye, controller
         self.__randomizing_width = randomizing_width
         self.__left, self.__right = 0.0, 0.0
@@ -135,8 +135,8 @@ class Randomize(object):
         return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
 
     def run(self):
-        self.__left += (self.__randomize() * 20)
-        self.__right += (self.__randomize() * 20)
+        self.__left += (self.__randomize() * 25)
+        self.__right += (self.__randomize() * 25)
 
         self.__left = self.__left if self.__left < MAX_SPEED else MAX_SPEED
         self.__right = self.__right if self.__right < MAX_SPEED else MAX_SPEED
@@ -149,44 +149,48 @@ class Randomize(object):
 
         if scan is not None:
             min_distance, min_distance_angle = get_min_distance(scan, current_angle)
-            if min_distance is not None and min_distance < HARD_LIMIT * 2.2:
-                if min_distance_angle < current_angle:
-                    # go to right
-                    if left > 0:
-                        print '>> Rodeo to right'
-                        left = left if left < 300.0 else 300.0
-                        right = -left  # FIXME(paoolo)
-                    else:
-                        if right > 0:
-                            print '>> Swap to right'
-                            _t = left
-                            left = right
-                            right = _t
-                else:
-                    # go to left
-                    if right > 0:
-                        print '>> Rodeo to left'
-                        right = right if right < 300.0 else 300.0
-                        left = -right  # FIXME(paoolo)
-                    else:
+            if min_distance is not None:
+                if min_distance < HARD_LIMIT * 2.2:
+                    if min_distance_angle < current_angle:
+                        # go to right
                         if left > 0:
-                            print '>> Swap to left'
-                            _t = right
-                            right = left
-                            left = _t
+                            print '>> Rodeo to right'
+                            left = left if left < 300.0 else 300.0
+                            right = -left  # FIXME(paoolo)
+                        else:
+                            if right > 0:
+                                print '>> Swap to right'
+                                _t = left
+                                left = right
+                                right = _t
+                    else:
+                        # go to left
+                        if right > 0:
+                            print '>> Rodeo to left'
+                            right = right if right < 300.0 else 300.0
+                            left = -right  # FIXME(paoolo)
+                        else:
+                            if left > 0:
+                                print '>> Swap to left'
+                                _t = right
+                                right = left
+                                left = _t
+
+                    if (left + right) / 2.0 < 0:
+                        if left < 0 and right < 0:
+                            left, right = 0.0, 0.0
+                        elif left < 0 < right:
+                            right = right if right < 200.0 else 200.0
+                            left = -right
+                        elif left > 0 > right:
+                            left = left if left < 200.0 else 200.0
+                            right = -left
+
+                elif min_distance < HARD_LIMIT * 1.1:
+                    left = -left
+                    right = -right
         else:
             left, right = 0.0, 0.0
 
-        if (left + right) / 2.0 < 0:
-            if left < 0 and right < 0:
-                left, right = 0.0, 0.0
-            elif left < 0 < right:
-                right = right if right < 200.0 else 200.0
-                left = -right
-            elif left > 0 > right:
-                left = left if left < 200.0 else 200.0
-                right = -left
-
         self.__controller.set(left, right)
         print 'set controller: %d, %d' % (left, right)
-        self.__left, self.__right = left, right
