@@ -132,7 +132,7 @@ class Randomize(object):
         self.__left, self.__right = 0.0, 0.0
 
     def __randomize(self):
-        return random.random() * self.__randomizing_width - self.__randomizing_width / 2.0
+        return int(random.random() * self.__randomizing_width - self.__randomizing_width / 2.0)
 
     def run(self):
         self.__left += (self.__randomize() * 25)
