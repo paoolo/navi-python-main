@@ -138,6 +138,9 @@ class Randomize(object):
         self.__left += (self.__randomize() * 40)
         self.__right += (self.__randomize() * 40)
 
+        self.__left = self.__left if self.__left < MAX_SPEED else MAX_SPEED
+        self.__right = self.__right if self.__right < MAX_SPEED else MAX_SPEED
+
         left, right = self.__left, self.__right
 
         current_angle = logic.get_angle(left, right, ROBO_WIDTH)
