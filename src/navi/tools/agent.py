@@ -19,6 +19,7 @@ class Eye(object):
 
 
 MAX_SPEED = float(config.MAX_SPEED)
+LOW_PASS_ALPHA = float(config.LOW_PASS_ALPHA)
 
 
 class Driver(object):
@@ -45,6 +46,9 @@ class Driver(object):
 
     def run(self):
         if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
+            self.__left = Driver.__low_pass_filter(self.__left, self.__old_left)
+            self.__right = Driver.__low_pass_filter(self.__right, self.__old_right)
+
             self.__old_left, self.__old_right = self.__left, self.__right
 
             self.__left = MAX_SPEED if self.__left > MAX_SPEED else \
@@ -54,6 +58,12 @@ class Driver(object):
 
             self.__robo.send_motors_command(int(self.__left), int(self.__right), int(self.__left), int(self.__right))
         print 'drive: %d, %d' % (self.__left, self.__right)
+
+    @staticmethod
+    def __low_pass_filter(new_value, old_value):
+        if old_value is None:
+            return new_value
+        return old_value + LOW_PASS_ALPHA * (new_value - old_value)
 
 
 SCANNER_DIST_OFFSET = float(config.SCANNER_DIST_OFFSET)
