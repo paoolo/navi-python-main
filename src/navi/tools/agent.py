@@ -149,15 +149,17 @@ class Randomize(object):
 
         if scan is not None:
             min_distance, min_distance_angle = get_min_distance(scan, current_angle)
-            if min_distance is not None and min_distance < HARD_LIMIT * 1.9:
+            if min_distance is not None and min_distance < HARD_LIMIT * 2.2:
                 if min_distance_angle < current_angle:
                     # go to right
                     if left > 0:
                         if right > 0:
-                            left = left if left < 200.0 else 200.0
+                            print '>> Rodeo to right'
+                            left = left if left < 300.0 else 300.0
                             right = -left  # FIXME(paoolo)
                     else:
                         if right > 0:
+                            print '>> Swap to right'
                             _t = left
                             left = right
                             right = _t
@@ -165,10 +167,12 @@ class Randomize(object):
                     # go to left
                     if right > 0:
                         if left > 0:
-                            right = right if right < 200.0 else 200.0
+                            print '>> Rodeo to left'
+                            right = right if right < 300.0 else 300.0
                             left = -right  # FIXME(paoolo)
                     else:
                         if left > 0:
+                            print '>> Swap to left'
                             _t = right
                             right = left
                             left = _t
