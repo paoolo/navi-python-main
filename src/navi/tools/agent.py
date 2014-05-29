@@ -67,13 +67,15 @@ HARD_LIMIT = float(config.HARD_LIMIT)
 def get_min_distance(scan, current_angle):
     scan = scan.get_points()
     min_distance = None
+    min_distance_angle = None
 
     for angle, distance in scan.items():
         if distance > SCANNER_DIST_OFFSET and current_angle - ANGLE_RANGE < angle < current_angle + ANGLE_RANGE:
             if min_distance is None or distance < min_distance:
                 min_distance = distance
+                min_distance_angle = angle
 
-    return min_distance
+    return min_distance, min_distance_angle
 
 
 ROBO_WIDTH = float(config.ROBO_WIDTH)
@@ -101,7 +103,7 @@ class Controller(object):
 
             scan = self.__eye.get()
             if scan is not None:
-                min_distance = get_min_distance(scan, current_angle)
+                min_distance, _ = get_min_distance(scan, current_angle)
 
                 if HARD_LIMIT < min_distance < SOFT_LIMIT:
                     current_speed = (left + right) / 2.0
@@ -143,31 +145,37 @@ class Randomize(object):
         scan = self.__eye.get()
 
         if scan is not None:
-            min_distance = get_min_distance(scan, current_angle)
+            min_distance, min_distance_angle = get_min_distance(scan, current_angle)
 
             if min_distance < HARD_LIMIT * 1.95:
-                if random.random() < 0.5:
-                    left = -right
+                if min_distance_angle < current_angle:
+                    if left > 0:
+                        if right > 0:
+                            right = -left  # FIXME(paoolo)
+                    else:
+                        if right > 0:
+                            _t = left
+                            left = right
+                            right = _t
                 else:
-                    right = -left
-            else:
-                if random.random() < 0.5:
-                    left = right
-                else:
-                    right = left
+                    if right > 0:
+                        if left > 0:
+                            left = -right  # FIXME(paoolo)
+                    else:
+                        if left > 0:
+                            _t = right
+                            right = left
+                            left = _t
         else:
             left, right = 0.0, 0.0
 
         if (left + right) / 2.0 < 0:
             if left < 0 and right < 0:
                 left, right = 0.0, 0.0
-
-            elif self.__left < 0:
+            elif left < 0 < right:
                 left = -right
-
-            elif self.__right < 0:
+            elif left > 0 > right:
                 right = -left
 
         self.__controller.set(left, right)
         print 'set controller: %d, %d' % (left, right)
-        self.__left, self.__right = left, right
