@@ -56,10 +56,12 @@ class Driver(object):
         print 'drive: %d, %d' % (self.__left, self.__right)
 
 
-MIN_SCANNER_RANGE = float(config.MIN_SCANNER_RANGE)
+SCANNER_DIST_OFFSET = float(config.SCANNER_DIST_OFFSET)
+
 ANGLE_RANGE = float(config.ANGLE_RANGE)
-STOP_DIST = float(config.STOP_DIST)
-LIMIT_DIST = float(config.LIMIT_DIST)
+
+SOFT_LIMIT = float(config.SOFT_LIMIT)
+HARD_LIMIT = float(config.HARD_LIMIT)
 
 
 def get_min_distance(scan, current_angle):
@@ -67,7 +69,7 @@ def get_min_distance(scan, current_angle):
     min_distance = None
 
     for angle, distance in scan.items():
-        if distance > MIN_SCANNER_RANGE and current_angle - ANGLE_RANGE < angle < current_angle + ANGLE_RANGE:
+        if distance > SCANNER_DIST_OFFSET and current_angle - ANGLE_RANGE < angle < current_angle + ANGLE_RANGE:
             if min_distance is None or distance < min_distance:
                 min_distance = distance
 
@@ -101,7 +103,7 @@ class Controller(object):
             if scan is not None:
                 min_distance = get_min_distance(scan, current_angle)
 
-                if STOP_DIST < min_distance < LIMIT_DIST:
+                if SOFT_LIMIT < min_distance < HARD_LIMIT:
                     current_speed = (left + right) / 2.0
                     max_speed = logic.get_max_speed(min_distance)
 
@@ -110,7 +112,7 @@ class Controller(object):
                         left = left * divide
                         right = right * divide
 
-                elif min_distance <= STOP_DIST:
+                elif min_distance <= SOFT_LIMIT:
                     left, right = 0, 0
 
                 print 'distance: %d' % min_distance
@@ -141,7 +143,7 @@ class Randomize(object):
         if scan is not None:
             min_distance = get_min_distance(scan, current_angle)
 
-            if min_distance < STOP_DIST * 2.0:
+            if min_distance < SOFT_LIMIT * 2.0:
                 if random.random() < 0.5:
                     self.__left = -self.__right
                 else:

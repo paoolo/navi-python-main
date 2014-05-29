@@ -2,10 +2,9 @@ import math
 
 from navi.tools import config
 
-
 __author__ = 'paoolo'
 
-HALF_ROBO = float(config.HALF_ROBO)
+HALF_ROBO = float(config.ROBO_WIDTH) / 2.0
 
 
 def calculate(radius, linear_speed, angular_speed):
@@ -71,7 +70,7 @@ def get_angular_speed(radius, left, right, linear_speed=None):
         angular_speed = math.atan(linear_speed / radius)
     return angular_speed
 
-
+# Magic constant :)
 DIV = 40
 
 
@@ -85,7 +84,7 @@ def change_angle(angle, left, right):
     return left, right
 
 
-ANGLE = float(config.ANGLE)
+ANGLE_TRAJECTORY = float(config.ANGLE_TRAJECTORY)
 
 
 def check_trajectory(scan, left, right):
@@ -96,15 +95,15 @@ def check_trajectory(scan, left, right):
 
     if linear_speed > 0:
         for angle, distance in sorted(scan.get_points().items()):
-            if angle <= -ANGLE:
+            if angle <= -ANGLE_TRAJECTORY:
                 if distance == 0 or distance > SOFT_LIMIT * 2:
                     if left_angle is None or angle > left_angle:
                         left_angle = angle
-            elif -ANGLE < angle < ANGLE:
+            elif -ANGLE_TRAJECTORY < angle < ANGLE_TRAJECTORY:
                 if distance > 10.0:
                     if min_distance is None or distance < min_distance:
                         min_distance = distance
-            elif ANGLE <= angle:
+            elif ANGLE_TRAJECTORY <= angle:
                 if distance == 0 or distance > SOFT_LIMIT * 2:
                     if right_angle is None or angle < right_angle:
                         right_angle = angle
@@ -132,10 +131,8 @@ def check_trajectory(scan, left, right):
 
 
 MAX_SPEED = float(config.MAX_SPEED)
-LIMIT_DIST = float(config.LIMIT_DIST)
-STOP_DIST = float(config.STOP_DIST)
 
 
 def get_max_speed(distance):
-    return MAX_SPEED / (LIMIT_DIST - STOP_DIST) * float(distance) - \
-           (MAX_SPEED * STOP_DIST) / (LIMIT_DIST - STOP_DIST)
+    return MAX_SPEED / (SOFT_LIMIT - HARD_LIMIT) * float(distance) - \
+           (MAX_SPEED * HARD_LIMIT) / (SOFT_LIMIT - HARD_LIMIT)
