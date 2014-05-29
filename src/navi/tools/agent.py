@@ -153,10 +153,9 @@ class Randomize(object):
                 if min_distance_angle < current_angle:
                     # go to right
                     if left > 0:
-                        if right > 0:
-                            print '>> Rodeo to right'
-                            left = left if left < 300.0 else 300.0
-                            right = -left  # FIXME(paoolo)
+                        print '>> Rodeo to right'
+                        left = left if left < 300.0 else 300.0
+                        right = -left  # FIXME(paoolo)
                     else:
                         if right > 0:
                             print '>> Swap to right'
@@ -166,10 +165,9 @@ class Randomize(object):
                 else:
                     # go to left
                     if right > 0:
-                        if left > 0:
-                            print '>> Rodeo to left'
-                            right = right if right < 300.0 else 300.0
-                            left = -right  # FIXME(paoolo)
+                        print '>> Rodeo to left'
+                        right = right if right < 300.0 else 300.0
+                        left = -right  # FIXME(paoolo)
                     else:
                         if left > 0:
                             print '>> Swap to left'
