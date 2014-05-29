@@ -136,7 +136,7 @@ class Controller(object):
 
 
 class Randomize(object):
-    def __init__(self, eye, controller, randomizing_width=4.0):
+    def __init__(self, eye, controller, randomizing_width=50.0):
         self.__eye, self.__controller = eye, controller
         self.__randomizing_width = randomizing_width
         self.__left, self.__right = 0.0, 0.0
@@ -145,8 +145,8 @@ class Randomize(object):
         return int(random.random() * self.__randomizing_width - self.__randomizing_width / 2.0)
 
     def run(self):
-        self.__left += (self.__randomize() * 25)
-        self.__right += (self.__randomize() * 25)
+        self.__left += (self.__randomize() * 10)
+        self.__right += (self.__randomize() * 10)
 
         self.__left = self.__left if self.__left < MAX_SPEED else MAX_SPEED
         self.__right = self.__right if self.__right < MAX_SPEED else MAX_SPEED
