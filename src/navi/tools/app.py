@@ -71,18 +71,6 @@ class App(object):
 
         print 'manual thread stop'
 
-    def __auto_loop(self):
-        try:
-            while self.__alive:
-                self.__randomize.run()
-
-                time.sleep(0.07)
-        except BaseException as e:
-            traceback.print_exc()
-            print 'auto_thread: %s' % str(e)
-
-        print 'auto thread stop'
-
     def __controller_loop(self):
         try:
             while self.__alive:
@@ -95,6 +83,20 @@ class App(object):
             print 'controller_thread: main down: %s' % str(e)
 
         print 'controller driver thread stop'
+
+    def __auto_loop(self):
+        try:
+            while self.__alive:
+                self.__randomize.run()
+                self.__controller.run()
+                self.__driver.run()
+
+                time.sleep(0.07)
+        except BaseException as e:
+            traceback.print_exc()
+            print 'auto_thread: %s' % str(e)
+
+        print 'auto thread stop'
 
     def __configure_robo(self):
         self.__client = amber_client.AmberClient(self.__amber_ip)
@@ -118,10 +120,7 @@ class App(object):
     def auto(self):
         self.__configure_robo()
 
-        self.__auto_thread = threading.Thread(target=self.__auto_loop)
-        self.__auto_thread.start()
-
-        self.__controller_loop()
+        self.__auto_loop()
 
     def terminate(self):
         print 'terminate app'
