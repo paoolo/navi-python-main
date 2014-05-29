@@ -145,7 +145,7 @@ class Randomize(object):
         if scan is not None:
             min_distance = get_min_distance(scan, current_angle)
 
-            if min_distance < HARD_LIMIT * 1.75:
+            if min_distance < HARD_LIMIT * 1.95:
                 if random.random() < 0.5:
                     left = -right
                 else:
