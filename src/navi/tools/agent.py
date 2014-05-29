@@ -204,3 +204,4 @@ class Randomize(object):
 
         self.__controller.set(left, right)
         print 'set controller: %d, %d' % (left, right)
+        self.__left, self.__right = left, right
