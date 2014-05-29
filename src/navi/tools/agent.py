@@ -147,11 +147,12 @@ class Randomize(object):
         if scan is not None:
             min_distance, min_distance_angle = get_min_distance(scan, current_angle)
 
-            if min_distance < HARD_LIMIT * 1.95:
+            if min_distance < HARD_LIMIT * 1.2:
                 if min_distance_angle < current_angle:
                     # go to right
                     if left > 0:
                         if right > 0:
+                            left = left if left < 200.0 else 200.0
                             right = -left  # FIXME(paoolo)
                     else:
                         if right > 0:
@@ -162,6 +163,7 @@ class Randomize(object):
                     # go to left
                     if right > 0:
                         if left > 0:
+                            right = right if right < 200.0 else 200.0
                             left = -right  # FIXME(paoolo)
                     else:
                         if left > 0:
@@ -175,8 +177,10 @@ class Randomize(object):
             if left < 0 and right < 0:
                 left, right = 0.0, 0.0
             elif left < 0 < right:
+                right = right if right < 200.0 else 200.0
                 left = -right
             elif left > 0 > right:
+                left = left if left < 200.0 else 200.0
                 right = -left
 
         self.__controller.set(left, right)
