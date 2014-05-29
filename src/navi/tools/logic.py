@@ -134,6 +134,5 @@ MAX_SPEED = float(config.MAX_SPEED)
 
 
 def get_max_speed(distance):
-    print '>> %f, %f, %f, %f' % (SOFT_LIMIT, HARD_LIMIT, MAX_SPEED, distance)
     return MAX_SPEED / (SOFT_LIMIT - HARD_LIMIT) * float(distance) - \
            (MAX_SPEED * HARD_LIMIT) / (SOFT_LIMIT - HARD_LIMIT)

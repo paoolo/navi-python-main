@@ -103,7 +103,7 @@ class Controller(object):
             if scan is not None:
                 min_distance = get_min_distance(scan, current_angle)
 
-                if SOFT_LIMIT < min_distance < HARD_LIMIT:
+                if HARD_LIMIT < min_distance < SOFT_LIMIT:
                     current_speed = (left + right) / 2.0
                     max_speed = logic.get_max_speed(min_distance)
 
@@ -112,7 +112,7 @@ class Controller(object):
                         left = left * divide
                         right = right * divide
 
-                elif min_distance <= SOFT_LIMIT:
+                elif min_distance <= HARD_LIMIT:
                     left, right = 0, 0
 
                 print 'distance: %d' % min_distance
@@ -136,35 +136,37 @@ class Randomize(object):
         self.__left += (self.__randomize() * 20)
         self.__right += (self.__randomize() * 20)
 
-        current_angle = logic.get_angle(self.__left, self.__right, ROBO_WIDTH)
+        left, right = self.__left, self.__right
+
+        current_angle = logic.get_angle(left, right, ROBO_WIDTH)
 
         scan = self.__eye.get()
 
         if scan is not None:
             min_distance = get_min_distance(scan, current_angle)
 
-            if min_distance < SOFT_LIMIT * 2.0:
+            if min_distance < HARD_LIMIT * 1.75:
                 if random.random() < 0.5:
-                    self.__left = -self.__right
+                    left = -right
                 else:
-                    self.__right = -self.__left
+                    right = -left
             else:
                 if random.random() < 0.5:
-                    self.__left = self.__right
+                    left = right
                 else:
-                    self.__right = self.__left
+                    right = left
         else:
-            self.__left, self.__right = 0.0, 0.0
+            left, right = 0.0, 0.0
 
-        if (self.__left + self.__right) / 2.0 < 0:
-            if self.__left < 0 and self.__right < 0:
-                self.__left, self__right = 0.0, 0.0
+        if (left + right) / 2.0 < 0:
+            if left < 0 and right < 0:
+                left, right = 0.0, 0.0
 
             elif self.__left < 0:
-                self.__left = -self.__right
+                left = -right
 
             elif self.__right < 0:
-                self.__right = -self.__left
+                right = -left
 
-        self.__controller.set(self.__left, self.__right)
-        print 'set controller: %d, %d' % (self.__left, self.__right)
+        self.__controller.set(left, right)
+        print 'set controller: %d, %d' % (left, right)
