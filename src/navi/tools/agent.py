@@ -149,6 +149,7 @@ class Randomize(object):
 
             if min_distance < HARD_LIMIT * 1.95:
                 if min_distance_angle < current_angle:
+                    # go to right
                     if left > 0:
                         if right > 0:
                             right = -left  # FIXME(paoolo)
@@ -158,6 +159,7 @@ class Randomize(object):
                             left = right
                             right = _t
                 else:
+                    # go to left
                     if right > 0:
                         if left > 0:
                             left = -right  # FIXME(paoolo)
@@ -179,3 +181,4 @@ class Randomize(object):
 
         self.__controller.set(left, right)
         print 'set controller: %d, %d' % (left, right)
+        self.__left, self.__right = left, right
