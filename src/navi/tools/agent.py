@@ -45,7 +45,7 @@ class Driver(object):
         self.__right += right
 
     def run(self):
-        if abs(self.__old_left - self.__left) > 50 or abs(self.__old_right - self.__right) > 50:
+        if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
             self.__left = Driver.__low_pass_filter(self.__left, self.__old_left)
             self.__right = Driver.__low_pass_filter(self.__right, self.__old_right)
 
@@ -136,7 +136,7 @@ class Controller(object):
 
 
 class Randomize(object):
-    def __init__(self, eye, controller, randomizing_width=50.0):
+    def __init__(self, eye, controller, randomizing_width=20.0):
         self.__eye, self.__controller = eye, controller
         self.__randomizing_width = randomizing_width
         self.__left, self.__right = 0.0, 0.0
@@ -204,4 +204,3 @@ class Randomize(object):
 
         self.__controller.set(left, right)
         print 'set controller: %d, %d' % (left, right)
-        self.__left, self.__right = left, right
