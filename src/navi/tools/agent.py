@@ -45,7 +45,7 @@ class Driver(object):
         self.__right += right
 
     def run(self):
-        if abs(self.__old_left - self.__left) > 10 or abs(self.__old_right - self.__right) > 10:
+        if abs(self.__old_left - self.__left) > 50 or abs(self.__old_right - self.__right) > 50:
             self.__left = Driver.__low_pass_filter(self.__left, self.__old_left)
             self.__right = Driver.__low_pass_filter(self.__right, self.__old_right)
 
