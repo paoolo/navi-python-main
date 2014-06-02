@@ -4,6 +4,9 @@ from navi.tools import config
 
 __author__ = 'paoolo'
 
+SCANNER_DIST_OFFSET = float(config.SCANNER_DIST_OFFSET)
+ANGLE_RANGE = float(config.ANGLE_RANGE)
+
 
 def get_min_distance(scan, current_angle):
     scan = scan.get_points()
