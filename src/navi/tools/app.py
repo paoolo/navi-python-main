@@ -9,7 +9,7 @@ from amber.hokuyo import hokuyo
 from amber.roboclaw import roboclaw
 
 from navi.proto import controlmsg_pb2
-from navi.tools import agent, config
+from navi.tools import component, config
 
 
 __author__ = 'paoolo'
@@ -20,17 +20,19 @@ PORT = int(config.PORT)
 
 class App(object):
     def __init__(self, amber_ip):
-        self.__amber_ip = amber_ip
         self.__cond = threading.Condition()
-
         self.__server_socket = None
-        self.__client = None
-        self.__laser, self.__robo = None, None
-        self.__eye, self.__driver, self.__controller, self.__randomize = None, None, None, None
-        self.__alive = True
-        self.__auto_thread, self.__manual_thread, self.__scanner_thread = None, None, None
 
-    def __manual_loop(self):
+        self.__amber_ip = amber_ip
+        self.__amber_client = None
+
+        self.__hokuyo, self.__roboclaw = None, None
+        self.__alive = True
+
+        self.__chain = None
+        self.__manual, self.__receiver_thread = None, None
+
+    def __receiver_loop(self):
         self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server_socket.bind((ADDRESS, PORT))
         self.__server_socket.listen(5)
@@ -53,13 +55,13 @@ class App(object):
                             msg.ParseFromString(data)
 
                             if msg.type == controlmsg_pb2.SET:
-                                self.__controller.set(msg.left, msg.right)
+                                self.__manual.set(msg.left, msg.right)
 
                             elif msg.type == controlmsg_pb2.CHANGE:
-                                self.__controller.change(msg.left, msg.right)
+                                self.__manual.change(msg.left, msg.right)
 
                     print 'manual_thread: client disconnected'
-                    self.__controller.set(0, 0)
+                    self.__manual.set(0, 0)
 
                 except BaseException as e:
                     traceback.print_exc()
@@ -71,64 +73,67 @@ class App(object):
 
         print 'manual thread stop'
 
-    def __controller_loop(self):
+    def __main_loop(self):
         try:
             while self.__alive:
-                self.__controller.run()
-                self.__driver.run()
+                self.__chain.perform()
 
                 time.sleep(0.07)
         except BaseException as e:
             traceback.print_exc()
-            print 'controller_thread: main down: %s' % str(e)
-
-        print 'controller driver thread stop'
-
-    def __auto_loop(self):
-        try:
-            while self.__alive:
-                self.__randomize.run()
-                self.__controller.run()
-                self.__driver.run()
-
-                time.sleep(0.07)
-        except BaseException as e:
-            traceback.print_exc()
-            print 'auto_thread: %s' % str(e)
+            print 'main_loop exception: %s' % str(e)
 
         print 'auto thread stop'
 
     def __configure_robo(self):
-        self.__client = amber_client.AmberClient(self.__amber_ip)
+        self.__amber_client = amber_client.AmberClient(self.__amber_ip)
 
-        self.__laser = hokuyo.HokuyoProxy(self.__client, 0)
-        self.__robo = roboclaw.RoboclawProxy(self.__client, 0)
+        self.__hokuyo = hokuyo.HokuyoProxy(self.__amber_client, 0)
+        self.__roboclaw = roboclaw.RoboclawProxy(self.__amber_client, 0)
 
-        self.__eye = agent.Eye(self.__laser)
-        self.__driver = agent.Driver(self.__robo)
-        self.__controller = agent.Controller(self.__eye, self.__driver)
-        self.__randomize = agent.Randomize(self.__eye, self.__controller)
+    def __configure_chain(self):
+        rodeo_swap = component.RodeoSwap()
+        self.__hokuyo.subscribe(rodeo_swap)
+        self.__chain.append(rodeo_swap)
+
+        self.__chain.append(component.Back())
+
+        controller = component.Controller()
+        self.__hokuyo.subscribe(controller)
+        self.__chain.append(controller)
+
+        self.__chain.append(component.Stop())
+        self.__chain.append(component.Driver(self.__roboclaw))
 
     def manual(self):
         self.__configure_robo()
 
-        self.__manual_thread = threading.Thread(target=self.__manual_loop)
-        self.__manual_thread.start()
+        self.__chain = component.Chain()
+        self.__manual = component.Manual()
+        self.__chain.append(self.__manual)
+        self.__configure_chain()
 
-        self.__controller_loop()
+        self.__receiver_thread = threading.Thread(target=self.__receiver_loop)
+        self.__receiver_thread.start()
+
+        self.__main_loop()
 
     def auto(self):
         self.__configure_robo()
 
-        self.__auto_loop()
+        self.__chain = component.Chain()
+        self.__chain.append(component.Randomize())
+        self.__configure_chain()
+
+        self.__main_loop()
 
     def terminate(self):
         print 'terminate app'
 
         self.__alive = False
-        # FIXME(paoolo); how ugly is this!
+        # noinspection PyBroadException
         try:
             socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', PORT))
             self.__server_socket.close()
-        except:
+        except BaseException:
             pass
