@@ -1,6 +1,6 @@
 import random
 
-from navi.tools import logic, config
+from navi.tools import logic, config, web
 
 
 __author__ = 'paoolo'
@@ -37,7 +37,7 @@ class Manual(Component):
         self.__right += right
 
     def modify(self, left, right):
-        print 'manual(%d, %d)' % (self.__left, self.__right)
+        web.emit('manual_log', 'manual(%d, %d)' % (self.__left, self.__right))
         return self.__left, self.__right
 
 
@@ -56,7 +56,7 @@ class Randomize(Component):
         self.__left += (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
         self.__right += (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
 
-        print 'randomize(%d, %d)' % (self.__left, self.__right)
+        web.emit('randomize_log', 'randomize(%d, %d)' % (self.__left, self.__right))
         return self.__left, self.__right
 
     @staticmethod
@@ -116,7 +116,7 @@ class RodeoSwap(Component):
         else:
             left, right = 0.0, 0.0
 
-        print 'rodeo_swap(%d, %d)' % (left, right)
+        web.emit('rodeo_swap_log', 'rodeo_swap(%d, %d)' % (left, right))
         return left, right
 
     def handle(self, scan):
@@ -144,7 +144,7 @@ class Back(Component):
                 left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
                 right = -left
 
-        print 'back(%d, %d)' % (left, right)
+        web.emit('back_log', 'back(%d, %d)' % (left, right))
         return left, right
 
 
@@ -184,7 +184,7 @@ class Controller(Component):
             else:
                 left, right = 0.0, 0.0
 
-        print 'controller(%d, %d)' % (left, right)
+        web.emit('controller_log', 'controller(%d, %d)' % (left, right))
         return left, right
 
     def handle(self, scan):
@@ -200,7 +200,7 @@ class Stop(Component):
 
     def modify(self, left, right):
         left, right = Stop.__check(left), Stop.__check(right)
-        print 'stop(%d, %d)' % (left, right)
+        web.emit('stop_log', 'stop(%d, %d)' % (left, right))
         return left, right
 
     @staticmethod
@@ -236,6 +236,7 @@ class PID(Component):
         left = left - (current_left - left) * PID.ALPHA
         right = right - (current_right - right) * PID.ALPHA
 
+        web.emit('pid_log', 'pid(%d, %d)' % left, right)
         return left, right
 
 
@@ -261,7 +262,7 @@ class Driver(Component):
 
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
-        print 'driver(%d, %d)' % (left, right)
+        web.emit('driver_log', 'driver(%d, %d)' % (left, right))
         return left, right
 
     @staticmethod

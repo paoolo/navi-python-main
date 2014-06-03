@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Navi</title>
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    <style>
+        body {
+        padding-top: 50px;
+        }
+        .starter-template {
+        padding: 40px 15px;
+        text-align: center;
+        }
+    </style>
+
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+
+            names = ['log', 'manual', 'randomize',
+                     'rodeo_swap', 'back', 'controller',
+                     'stop', 'pid', 'driver']
+            for (var i = 0; i < names.length; i++) {
+                var name = names[i];
+                socket.on(name + '_response', function(msg) {
+                    $('#'+name+'_comp' ).append('<p>' + msg.data + '</p>');
+                });
+            }
+        });
+
+
+    </script>
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Navi</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Dashboard</a></li>
+                <li><a href="#about">Settings</a></li>
+                <li><a href="#contact">Help</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</div>
+
+<div class="container">
+
+    <div id="log_comp">
+        <h2>Logs..</h2>
+    </div>
+
+    <div id="manual_comp">
+        <h2>Manual</h2>
+    </div>
+
+    <div id="randomize_comp">
+        <h2>Randomize</h2>
+    </div>
+
+    <div id="rodeo_swap_comp">
+        <h2>Rodeo-Swap</h2>
+    </div>
+
+    <div id="back_comp">
+        <h2>Back</h2>
+    </div>
+
+    <div id="controller_comp">
+        <h2>Controller</h2>
+    </div>
+
+    <div id="stop_comp">
+        <h2>Stop</h2>
+    </div>
+
+    <div id="pid_comp">
+        <h2>PID</h2>
+    </div>
+
+    <div id="driver_comp">
+        <h2>Driver</h2>
+    </div>
+</div>
+<!-- /.container -->
+
+</body>
+</html>
