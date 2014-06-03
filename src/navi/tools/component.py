@@ -210,6 +210,35 @@ class Stop(Component):
             else value
 
 
+class PID(Component):
+    """
+    Used to PID.
+    """
+
+    ALPHA = float(config.PID_ALPHA)
+
+    def __init__(self, engine):
+        self.__engine = engine
+
+    def modify(self, left, right):
+        # FIXME(paoolo) asynchronous this
+        current_speed = self.__engine.get_current_motors_speed()
+
+        front_left = current_speed.get_front_left_speed()
+        rear_left = current_speed.get_rear_left_speed()
+
+        front_right = current_speed.get_front_right_speed()
+        rear_right = current_speed.get_rear_right_speed()
+
+        current_left = (front_left + rear_left) / 2.0
+        current_right = (front_right + rear_right) / 2.0
+
+        left = left - (current_left - left) * PID.ALPHA
+        right = right - (current_right - right) * PID.ALPHA
+
+        return left, right
+
+
 class Driver(Component):
     """
     Used to drive.
