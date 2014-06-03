@@ -3,50 +3,35 @@
 <head>
     <title>Flask-SocketIO Test</title>
     <script type="text/javascript"
-            src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+            src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript"
-            src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        $(document).ready(function(){
-            var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
-            socket.on('my response', function(msg) {
-                $('#log').append('<p>Received: ' + msg.data + '</p>');
-            });
-            $('form#emit').submit(function(event) {
-                socket.emit('my event', {data: $('#emit_data').val()});
-                return false;
-            });
-            $('form#broadcast').submit(function(event) {
-                socket.emit('my broadcast event', {data: $('#broadcast_data').val()});
-                return false;
-            });
+            src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+    <script type="text/javascript">
+$(document).ready(function(){
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/navi');
+
+    names = ['log', 'manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'stop', 'pid', 'driver']
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+        alert(name);
+        socket.on(name + '_response', function(msg) {
+            $('#'+name+'_comp' ).append('<p>' + msg.data + '</p>');
         });
+    }
+});
     </script>
 </head>
 <body>
-<h1>Flask-SocketIO Test</h1>
+<h1>navi</h1>
 
-<h2>Send:</h2>
-<table>
-    <tr>
-        <td>
-            <form id="emit" method='POST' action='#'>
-                <textarea name="emit_data" id="emit_data"></textarea>
-
-                <div><input type="submit" value="Emit"></div>
-            </form>
-        </td>
-        <td>
-            <form id="broadcast" method='POST' action='#'>
-                <textarea name="broadcast_data" id="broadcast_data"></textarea>
-
-                <div><input type="submit" value="Broadcast"></div>
-            </form>
-        </td>
-    </tr>
-</table>
-<h2>Receive:</h2>
-
-<div id="log"></div>
+<div id="log_comp"></div>
+<div id="manual_comp"></div>
+<div id="randomize_comp"></div>
+<div id="rodeo_swap_comp"></div>
+<div id="back_comp"></div>
+<div id="controller_comp"></div>
+<div id="stop_comp"></div>
+<div id="pid_comp"></div>
+<div id="driver_comp"></div>
 </body>
 </html>
