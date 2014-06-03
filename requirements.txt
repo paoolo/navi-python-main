@@ -1,4 +1,3 @@
 amber-python-clients
-flask
-gevent
-gevent-socketio
+Flask
+Flask-SocketIO
