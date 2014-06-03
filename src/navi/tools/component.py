@@ -38,6 +38,7 @@ class Manual(Component):
 
     def modify(self, left, right):
         web.emit('manual_log', 'manual(%d, %d)' % (self.__left, self.__right))
+        print('manual_log', 'manual(%d, %d)' % (self.__left, self.__right))
         return self.__left, self.__right
 
 
@@ -57,6 +58,7 @@ class Randomize(Component):
         self.__right += (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
 
         web.emit('randomize_log', 'randomize(%d, %d)' % (self.__left, self.__right))
+        print('randomize_log', 'randomize(%d, %d)' % (self.__left, self.__right))
         return self.__left, self.__right
 
     @staticmethod
@@ -117,6 +119,7 @@ class RodeoSwap(Component):
             left, right = 0.0, 0.0
 
         web.emit('rodeo_swap_log', 'rodeo_swap(%d, %d)' % (left, right))
+        print('rodeo_swap_log', 'rodeo_swap(%d, %d)' % (left, right))
         return left, right
 
     def handle(self, scan):
@@ -145,6 +148,7 @@ class Back(Component):
                 right = -left
 
         web.emit('back_log', 'back(%d, %d)' % (left, right))
+        print('back_log', 'back(%d, %d)' % (left, right))
         return left, right
 
 
@@ -185,6 +189,7 @@ class Controller(Component):
                 left, right = 0.0, 0.0
 
         web.emit('controller_log', 'controller(%d, %d)' % (left, right))
+        print('controller_log', 'controller(%d, %d)' % (left, right))
         return left, right
 
     def handle(self, scan):
@@ -201,6 +206,7 @@ class Stop(Component):
     def modify(self, left, right):
         left, right = Stop.__check(left), Stop.__check(right)
         web.emit('stop_log', 'stop(%d, %d)' % (left, right))
+        print('stop_log', 'stop(%d, %d)' % (left, right))
         return left, right
 
     @staticmethod
@@ -236,7 +242,8 @@ class PID(Component):
         left = left - (current_left - left) * PID.ALPHA
         right = right - (current_right - right) * PID.ALPHA
 
-        web.emit('pid_log', 'pid(%d, %d)' % left, right)
+        web.emit('pid_log', 'pid(%d, %d)' % (left, right))
+        print('pid_log', 'pid(%d, %d)' % (left, right))
         return left, right
 
 
@@ -263,6 +270,7 @@ class Driver(Component):
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
         web.emit('driver_log', 'driver(%d, %d)' % (left, right))
+        print('driver_log', 'driver(%d, %d)' % (left, right))
         return left, right
 
     @staticmethod
