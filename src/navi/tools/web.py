@@ -40,13 +40,13 @@ def _run_flask():
     _app_flask.run(host='0.0.0.0')
 
 
-flask_thread = None
+_processes = {}
 
 
 def _stop_flask():
-    if flask_thread is not None:
-        flask_thread.terminate()
-        flask_thread.join()
+    if 'flask' in _processes and _processes['flask'] is not None:
+        _processes['flask'].terminate()
+        _processes['flask'].join()
 
 
 _sockets = []
@@ -87,6 +87,6 @@ def start():
     _tornado_thread.start()
     runtime.add_shutdown_hook(_stop_tornado)
 
-    web.flask_thread = multiprocessing.Process(target=_run_flask)
-    flask_thread.start()
+    _processes['flask'] = multiprocessing.Process(target=_run_flask)
+    _processes['flask'].start()
     runtime.add_shutdown_hook(_stop_flask)
