@@ -46,9 +46,8 @@
         $(document).ready(function(){
             var ws = new WebSocket("ws://localhost:6000/");
             ws.onmessage = function(event) {
-                alert(event.data);
+                $('#log').append(event.data + '<br/>');
             }
-            alert('loaded');
         });
     </script>
 </head>
@@ -79,7 +78,7 @@
 <div class="container">
 
     <div>
-        <div id="log_comp" class="inline oneCol">
+        <div id="log" class="inline oneCol">
             <h2>Logs</h2>
 
             <div class="scroll">
@@ -89,13 +88,13 @@
     </div>
 
     <div>
-        <div id="manual_comp" class="inline twoCol">
+        <div id="manual_log" class="inline twoCol">
             <h2>Manual</h2>
 
             <div class="scroll">
             </div>
         </div>
-        <div id="randomize_comp" class="inline twoCol">
+        <div id="randomize_log" class="inline twoCol">
             <h2>Randomize</h2>
 
             <div class="scroll">
@@ -105,13 +104,13 @@
     </div>
 
     <div>
-        <div id="rodeo_swap_comp" class="inline twoCol">
+        <div id="rodeo_swap_log" class="inline twoCol">
             <h2>Rodeo-Swap</h2>
 
             <div class="scroll">
             </div>
         </div>
-        <div id="back_comp" class="inline twoCol">
+        <div id="back_log" class="inline twoCol">
             <h2>Back</h2>
 
             <div class="scroll">
@@ -119,14 +118,14 @@
         </div>
     </div>
     <div>
-        <div id="controller_comp" class="inline twoCol">
+        <div id="controller_log" class="inline twoCol">
             <h2>Controller</h2>
 
             <div class="scroll">
             </div>
         </div>
 
-        <div id="stop_comp" class="inline twoCol">
+        <div id="stop_log" class="inline twoCol">
             <h2>Stop</h2>
 
             <div class="scroll">
@@ -135,13 +134,13 @@
         <br class="clearBoth"/>
     </div>
     <div>
-        <div id="pid_comp" class="inline twoCol">
+        <div id="pid_log" class="inline twoCol">
             <h2>PID</h2>
 
             <div class="scroll">
             </div>
         </div>
-        <div id="driver_comp" class="inline twoCol">
+        <div id="driver_log" class="inline twoCol">
             <h2>Driver</h2>
 
             <div class="scroll">
