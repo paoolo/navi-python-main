@@ -47,8 +47,11 @@
             var ws = new WebSocket('ws://' + document.domain + ':8888/');
             ws.onmessage = function(event) {
                 $('#log').append(event.data + '<br/>');
+                var data = $.parseJSON(event.data);
+                $('#' + data.target).prepend(data.data + '<br/>');
             }
         });
+
     </script>
 </head>
 <body>
@@ -78,72 +81,72 @@
 <div class="container">
 
     <div>
-        <div id="log" class="inline oneCol">
+        <div class="inline oneCol">
             <h2>Logs</h2>
 
-            <div class="scroll">
+            <div id="log" class="scroll">
             </div>
         </div>
         <br class="clearBoth"/>
     </div>
 
     <div>
-        <div id="manual_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Manual</h2>
 
-            <div class="scroll">
+            <div id="manual_log" class="scroll">
             </div>
         </div>
-        <div id="randomize_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Randomize</h2>
 
-            <div class="scroll">
+            <div id="randomize_log" class="scroll">
             </div>
         </div>
         <br class="clearBoth"/>
     </div>
 
     <div>
-        <div id="rodeo_swap_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Rodeo-Swap</h2>
 
-            <div class="scroll">
+            <div id="rodeo_swap_log" class="scroll">
             </div>
         </div>
-        <div id="back_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Back</h2>
 
-            <div class="scroll">
+            <div id="back_log" class="scroll">
             </div>
         </div>
     </div>
     <div>
-        <div id="controller_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Controller</h2>
 
-            <div class="scroll">
+            <div id="controller_log" class="scroll">
             </div>
         </div>
 
-        <div id="stop_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Stop</h2>
 
-            <div class="scroll">
+            <div id="stop_log" class="scroll">
             </div>
         </div>
         <br class="clearBoth"/>
     </div>
     <div>
-        <div id="pid_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>PID</h2>
 
-            <div class="scroll">
+            <div id="pid_log" class="scroll">
             </div>
         </div>
-        <div id="driver_log" class="inline twoCol">
+        <div class="inline twoCol">
             <h2>Driver</h2>
 
-            <div class="scroll">
+            <div id="driver_log" class="scroll">
             </div>
         </div>
         <br class="clearBoth"/>
