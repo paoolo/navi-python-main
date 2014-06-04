@@ -103,7 +103,7 @@ class App(object):
         self.__chain.append(controller)
 
         self.__chain.append(component.Stop())
-        self.__chain.append(component.PID(self.__roboclaw))
+        # self.__chain.append(component.PID(self.__roboclaw))
         self.__chain.append(component.Driver(self.__roboclaw))
 
     def manual(self):
