@@ -44,7 +44,7 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
-            var ws = new WebSocket("ws://localhost:6000/");
+            var ws = new WebSocket('ws://' + document.domain + ':8888/');
             ws.onmessage = function(event) {
                 $('#log').append(event.data + '<br/>');
             }

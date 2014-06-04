@@ -236,6 +236,8 @@ class PID(Component):
         front_right = current_speed.get_front_right_speed()
         rear_right = current_speed.get_rear_right_speed()
 
+        print '%d, %d, %d, %d' % (front_left, front_right, rear_left, rear_right)
+
         current_left = (front_left + rear_left) / 2.0
         current_right = (front_right + rear_right) / 2.0
 

@@ -1,7 +1,6 @@
 import os
 import logging
 import threading
-import time
 
 from flask import Flask, render_template
 from tornado import websocket, ioloop, web
@@ -35,7 +34,7 @@ def index():
 
 
 def _run_flask():
-    _app_flask.run()
+    _app_flask.run(host='0.0.0.0')
 
 
 _sockets = []
@@ -53,7 +52,7 @@ def _run_tornado():
     application = web.Application([
         (r"/", WebSocket),
     ])
-    application.listen(6000)
+    application.listen(8888)
     ioloop.IOLoop.instance().start()
 
 
@@ -72,10 +71,3 @@ def start():
     _thread.start()
     _thread = threading.Thread(target=_run_flask)
     _thread.start()
-
-
-if __name__ == '__main__':
-    start()
-    while True:
-        emit('data')
-        time.sleep(3)
