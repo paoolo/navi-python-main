@@ -46,8 +46,8 @@
         $(document).ready(function(){
             var ws = new WebSocket('ws://' + document.domain + ':8888/');
             ws.onmessage = function(event) {
-                $('#log').append(event.data + '<br/>');
                 var data = $.parseJSON(event.data);
+                $('#log').prepend(data.target + ' => ' + data.data + '<br/>');
                 $('#' + data.target).prepend(data.data + '<br/>');
             }
         });
