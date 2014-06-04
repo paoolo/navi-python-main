@@ -1,11 +1,12 @@
-import multiprocessing
 import os
 import logging
 import threading
+import urllib2
 
 from amber.common import runtime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+
 from tornado import websocket, ioloop, web
 
 
@@ -36,17 +37,28 @@ def index():
     return render_template('index.html')
 
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@_app_flask.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
+
+
 def _run_flask():
     _app_flask.run(host='0.0.0.0')
 
 
-_processes = {}
-
-
 def _stop_flask():
-    if 'flask' in _processes and _processes['flask'] is not None:
-        _processes['flask'].terminate()
-        _processes['flask'].join()
+    req = urllib2.Request('http://localhost:5000/shutdown', '')
+    response = urllib2.urlopen(req)
+    result = response.read()
+    print result
 
 
 _sockets = []
@@ -87,6 +99,6 @@ def start():
     _tornado_thread.start()
     runtime.add_shutdown_hook(_stop_tornado)
 
-    _processes['flask'] = multiprocessing.Process(target=_run_flask)
-    _processes['flask'].start()
+    _flask_thread = threading.Thread(target=_run_flask)
+    _flask_thread.start()
     runtime.add_shutdown_hook(_stop_flask)
