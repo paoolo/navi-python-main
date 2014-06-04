@@ -2,7 +2,9 @@ import os
 import logging
 import threading
 
-from flask import Flask, render_template
+from amber.common import runtime
+
+from flask import Flask, render_template, request
 from tornado import websocket, ioloop, web
 
 
@@ -37,6 +39,13 @@ def _run_flask():
     _app_flask.run(host='0.0.0.0')
 
 
+def _stop_flask():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
 _sockets = []
 
 
@@ -56,6 +65,10 @@ def _run_tornado():
     ioloop.IOLoop.instance().start()
 
 
+def _stop_tornado():
+    ioloop.IOLoop.instance().stop()
+
+
 def emit(data):
     for socket in _sockets:
         socket.write_message(data)
@@ -67,7 +80,10 @@ def send(data):
 
 
 def start():
-    _thread = threading.Thread(target=_run_tornado)
-    _thread.start()
-    _thread = threading.Thread(target=_run_flask)
-    _thread.start()
+    tornado_thread = threading.Thread(target=_run_tornado)
+    tornado_thread.start()
+    runtime.add_shutdown_hook(_stop_tornado)
+
+    flask_thread = threading.Thread(target=_run_flask)
+    flask_thread.start()
+    runtime.add_shutdown_hook(_stop_flask)

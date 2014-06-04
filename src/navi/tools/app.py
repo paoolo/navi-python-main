@@ -4,7 +4,7 @@ import time
 import struct
 import traceback
 
-from amber.common import amber_client
+from amber.common import amber_client, runtime
 from amber.hokuyo import hokuyo
 from amber.roboclaw import roboclaw
 
@@ -117,6 +117,7 @@ class App(object):
         self.__receiver_thread = threading.Thread(target=self.__receiver_loop)
         self.__receiver_thread.start()
 
+        runtime.add_shutdown_hook(self.terminate)
         self.__main_loop()
 
     def auto(self):
