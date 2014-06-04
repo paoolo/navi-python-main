@@ -52,10 +52,16 @@ class Randomize(Component):
 
     def __init__(self):
         self.__left, self.__right = 0.0, 0.0
+        self.__back = Back()
 
     def modify(self, left, right):
-        self.__left += (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
-        self.__right += (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
+        value = (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
+        weight = random.random()
+
+        self.__left += value * weight
+        self.__right += value * (1.0 - weight)
+
+        self.__left, self.__right = self.__back.modify(self.__left, self.__right)
 
         web.emit({'target': 'randomize_log', 'data': 'randomize(%d, %d)' % (self.__left, self.__right)})
         # print('randomize_log', 'randomize(%d, %d)' % (self.__left, self.__right))
