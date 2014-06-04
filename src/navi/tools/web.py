@@ -1,10 +1,11 @@
+import multiprocessing
 import os
 import logging
 import threading
 
 from amber.common import runtime
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from tornado import websocket, ioloop, web
 
 
@@ -39,11 +40,13 @@ def _run_flask():
     _app_flask.run(host='0.0.0.0')
 
 
+flask_thread = None
+
+
 def _stop_flask():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
+    if flask_thread is not None:
+        flask_thread.terminate()
+        flask_thread.join()
 
 
 _sockets = []
@@ -80,10 +83,10 @@ def send(data):
 
 
 def start():
-    tornado_thread = threading.Thread(target=_run_tornado)
-    tornado_thread.start()
+    _tornado_thread = threading.Thread(target=_run_tornado)
+    _tornado_thread.start()
     runtime.add_shutdown_hook(_stop_tornado)
 
-    flask_thread = threading.Thread(target=_run_flask)
+    web.flask_thread = multiprocessing.Process(target=_run_flask)
     flask_thread.start()
     runtime.add_shutdown_hook(_stop_flask)
