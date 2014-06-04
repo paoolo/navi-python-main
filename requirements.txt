@@ -1,5 +1,3 @@
 amber-python-clients
 flask
-juggernaut
-flask-socketio
 tornado
