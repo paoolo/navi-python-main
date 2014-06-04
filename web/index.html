@@ -14,6 +14,28 @@
         padding: 40px 15px;
         text-align: center;
         }
+        div.inline {
+        margin: 10px;
+        float: left;
+        }
+        .oneCol {
+        width: 97%;
+        }
+        .twoCol {
+        width: 47%;
+        }
+        .threeCol {
+        width: 30%;
+        }
+        .clearBoth {
+        clear: both;
+        }
+        .scroll {
+        background: gray;
+        height: 150px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        }
     </style>
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -22,20 +44,12 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
-            var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-
-            names = ['log', 'manual', 'randomize',
-                     'rodeo_swap', 'back', 'controller',
-                     'stop', 'pid', 'driver']
-            for (var i = 0; i < names.length; i++) {
-                var name = names[i];
-                socket.on(name + '_response', function(msg) {
-                    $('#'+name+'_comp' ).append('<p>' + msg.data + '</p>');
-                });
+            var ws = new WebSocket("ws://localhost:6000/");
+            ws.onmessage = function(event) {
+                alert(event.data);
             }
+            alert('loaded');
         });
-
-
     </script>
 </head>
 <body>
@@ -64,40 +78,76 @@
 
 <div class="container">
 
-    <div id="log_comp">
-        <h2>Logs..</h2>
+    <div>
+        <div id="log_comp" class="inline oneCol">
+            <h2>Logs</h2>
+
+            <div class="scroll">
+            </div>
+        </div>
+        <br class="clearBoth"/>
     </div>
 
-    <div id="manual_comp">
-        <h2>Manual</h2>
+    <div>
+        <div id="manual_comp" class="inline twoCol">
+            <h2>Manual</h2>
+
+            <div class="scroll">
+            </div>
+        </div>
+        <div id="randomize_comp" class="inline twoCol">
+            <h2>Randomize</h2>
+
+            <div class="scroll">
+            </div>
+        </div>
+        <br class="clearBoth"/>
     </div>
 
-    <div id="randomize_comp">
-        <h2>Randomize</h2>
-    </div>
+    <div>
+        <div id="rodeo_swap_comp" class="inline twoCol">
+            <h2>Rodeo-Swap</h2>
 
-    <div id="rodeo_swap_comp">
-        <h2>Rodeo-Swap</h2>
-    </div>
+            <div class="scroll">
+            </div>
+        </div>
+        <div id="back_comp" class="inline twoCol">
+            <h2>Back</h2>
 
-    <div id="back_comp">
-        <h2>Back</h2>
+            <div class="scroll">
+            </div>
+        </div>
     </div>
+    <div>
+        <div id="controller_comp" class="inline twoCol">
+            <h2>Controller</h2>
 
-    <div id="controller_comp">
-        <h2>Controller</h2>
+            <div class="scroll">
+            </div>
+        </div>
+
+        <div id="stop_comp" class="inline twoCol">
+            <h2>Stop</h2>
+
+            <div class="scroll">
+            </div>
+        </div>
+        <br class="clearBoth"/>
     </div>
+    <div>
+        <div id="pid_comp" class="inline twoCol">
+            <h2>PID</h2>
 
-    <div id="stop_comp">
-        <h2>Stop</h2>
-    </div>
+            <div class="scroll">
+            </div>
+        </div>
+        <div id="driver_comp" class="inline twoCol">
+            <h2>Driver</h2>
 
-    <div id="pid_comp">
-        <h2>PID</h2>
-    </div>
-
-    <div id="driver_comp">
-        <h2>Driver</h2>
+            <div class="scroll">
+            </div>
+        </div>
+        <br class="clearBoth"/>
     </div>
 </div>
 <!-- /.container -->
