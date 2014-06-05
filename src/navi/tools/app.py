@@ -78,7 +78,7 @@ class App(object):
             while self.__alive:
                 self.__chain.perform()
 
-                time.sleep(0.2)
+                time.sleep(0.09)
         except BaseException as e:
             traceback.print_exc()
             print 'main_loop exception: %s' % str(e)
