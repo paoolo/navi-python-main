@@ -70,69 +70,72 @@
         position: relative;
         left: -50%;
         }
+        .chart {
+        height: 300px;
+        }
     </style>
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-    <script type="text/javascript" src="//code.highcharts.com/stock/highstock.js"></script>
+    <script type="text/javascript" src="/canvasjs.min.js"></script>
     <script type="text/javascript">
 $(document).ready(function() {
-var manual_chart = new Highcharts.Chart({
-    title: {text: 'Manual' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'manual_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var manual_t = 0;
+var manual_left = [];
+var manual_right = [];
+var manual_chart = new CanvasJS.Chart('manual_chart', {
+    data: [{ type: 'line', dataPoints: manual_left },
+           { type: 'line', dataPoints: manual_right }]
 });
-var randomize_chart = new Highcharts.Chart({
-    title: {text: 'Randomize' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'randomize_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var randomize_t = 0;
+var randomize_left = [];
+var randomize_right = [];
+var randomize_chart = new CanvasJS.Chart('randomize_chart', {
+    data: [{ type: 'line', dataPoints: randomize_left },
+           { type: 'line', dataPoints: randomize_right }]
 });
-var rodeo_swap_chart = new Highcharts.Chart({
-    title: {text: 'Rodeo Swap' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'rodeo_swap_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var rodeo_swap_t = 0;
+var rodeo_swap_left = [];
+var rodeo_swap_right = [];
+var rodeo_swap_chart = new CanvasJS.Chart('rodeo_swap_chart', {
+    data: [{ type: 'line', dataPoints: rodeo_swap_left },
+           { type: 'line', dataPoints: rodeo_swap_right }]
 });
-var back_chart = new Highcharts.Chart({
-    title: {text: 'Back' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'back_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var back_t = 0;
+var back_left = [];
+var back_right = [];
+var back_chart = new CanvasJS.Chart('back_chart', {
+    data: [{ type: 'line', dataPoints: back_left },
+           { type: 'line', dataPoints: back_right }]
 });
-var controller_chart = new Highcharts.Chart({
-    title: {text: 'Controller' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'controller_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var controller_t = 0;
+var controller_left = [];
+var controller_right = [];
+var controller_chart = new CanvasJS.Chart('controller_chart', {
+    data: [{ type: 'line', dataPoints: controller_left },
+           { type: 'line', dataPoints: controller_right }]
 });
-var stop_chart = new Highcharts.Chart({
-    title: {text: 'Stop' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'stop_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var stop_t = 0;
+var stop_left = [];
+var stop_right = [];
+var stop_chart = new CanvasJS.Chart('stop_chart', {
+    data: [{ type: 'line', dataPoints: stop_left },
+           { type: 'line', dataPoints: stop_right }]
 });
-var pid_chart = new Highcharts.Chart({
-    title: {text: 'PID' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'pid_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var pid_t = 0;
+var pid_left = [];
+var pid_right = [];
+var pid_chart = new CanvasJS.Chart('pid_chart', {
+    data: [{ type: 'line', dataPoints: pid_left },
+           { type: 'line', dataPoints: pid_right }]
 });
-var driver_chart = new Highcharts.Chart({
-    title: {text: 'Driver' },
-    // scrollbar: { enabled: true },
-    // xAxis: { max: 12, },
-    chart: { renderTo: 'driver_chart', type: 'spline', },
-    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+var driver_t = 0;
+var driver_left = [];
+var driver_right = [];
+var driver_chart = new CanvasJS.Chart('driver_chart', {
+    data: [{ type: 'line', dataPoints: driver_left },
+           { type: 'line', dataPoints: driver_right }]
 });
 
 var ws = new WebSocket('ws://' + document.domain + ':8888/');
@@ -144,55 +147,91 @@ ws.onmessage = function(event) {
 
     switch(data.target) {
         case 'manual':
-            manual_chart.series[0].addPoint({y: data.x});
-            manual_chart.series[1].addPoint({y: data.y});
-            manual_chart.series[0].data[0].remove(false, false);
-            manual_chart.series[1].data[0].remove(false, false);
-            manual_chart.redraw();
+            manual_t = manual_t + 1;
+            manual_left.push({x: manual_t, y: data.x});
+            manual_right.push({x: manual_t, y: data.y});
+            if (manual_left.length >= 50) { manual_left.shift(); }
+            if (manual_right.length >= 50) { manual_right.shift(); }
+            manual_chart.render();
             $('#manual_left').html(data.x);
             $('#manual_right').html(data.y);
             break;
         case 'randomize':
-            randomize_chart.series[0].addPoint({y: data.x});
-            randomize_chart.series[1].addPoint({y: data.y});
-            randomize_chart.series[0].data[0].remove(false, false);
-            randomize_chart.series[1].data[0].remove(false, false);
-            randomize_chart.redraw();
+            randomize_t = randomize_t + 1;
+            randomize_left.push({x: randomize_t, y: data.x});
+            randomize_right.push({x: randomize_t, y: data.y});
+            if (randomize_left.length >= 50) { randomize_left.shift(); }
+            if (randomize_right.length >= 50) { randomize_right.shift(); }
+            randomize_chart.render();
             $('#randomize_left').html(data.x);
             $('#randomize_right').html(data.y);
             break;
         case 'rodeo_swap':
+            rodeo_swap_t = rodeo_swap_t + 1;
+            rodeo_swap_left.push({x: rodeo_swap_t, y: data.x});
+            rodeo_swap_right.push({x: rodeo_swap_t, y: data.y});
+            if (rodeo_swap_left.length >= 50) { rodeo_swap_left.shift(); }
+            if (rodeo_swap_right.length >= 50) { rodeo_swap_right.shift(); }
+            rodeo_swap_chart.render();
             $('#rodeo_swap_left').html(data.x);
             $('#rodeo_swap_right').html(data.y);
             break;
         case 'back':
+            back_t = back_t + 1;
+            back_left.push({x: back_t, y: data.x});
+            back_right.push({x: back_t, y: data.y});
+            if (back_left.length >= 50) { back_left.shift(); }
+            if (back_right.length >= 50) { back_right.shift(); }
+            back_chart.render();
             $('#back_left').html(data.x);
             $('#back_right').html(data.y);
             break;
         case 'controller':
+            controller_t = controller_t + 1;
+            controller_left.push({x: controller_t, y: data.x});
+            controller_right.push({x: controller_t, y: data.y});
+            if (controller_left.length >= 50) { controller_left.shift(); }
+            if (controller_right.length >= 50) { controller_right.shift(); }
+            controller_chart.render();
             $('#controller_left').html(data.x);
             $('#controller_right').html(data.y);
             break;
         case 'stop':
+            stop_t = stop_t + 1;
+            stop_left.push({x: stop_t, y: data.x});
+            stop_right.push({x: stop_t, y: data.y});
+            if (stop_left.length >= 50) { stop_left.shift(); }
+            if (stop_right.length >= 50) { stop_right.shift(); }
+            stop_chart.render();
             $('#stop_left').html(data.x);
             $('#stop_right').html(data.y);
             break;
         case 'pid':
+            pid_t = pid_t + 1;
+            pid_left.push({x: pid_t, y: data.x});
+            pid_right.push({x: pid_t, y: data.y});
+            if (pid_left.length >= 50) { pid_left.shift(); }
+            if (pid_right.length >= 50) { pid_right.shift(); }
+            pid_chart.render();
             $('#pid_left').html(data.x);
             $('#pid_right').html(data.y);
             break;
         case 'driver':
-            driver_chart.series[0].addPoint({y: data.x});
-            driver_chart.series[1].addPoint({y: data.y});
-            driver_chart.series[0].data[0].remove(false, false);
-            driver_chart.series[1].data[0].remove(false, false);
-            driver_chart.redraw();
+            driver_t = driver_t + 1;
+            driver_left.push({x: driver_t, y: data.x});
+            driver_right.push({x: driver_t, y: data.y});
+            if (driver_left.length >= 50) { driver_left.shift(); }
+            if (driver_right.length >= 50) { driver_right.shift(); }
+            driver_chart.render();
             $('#driver_left').html(data.x);
             $('#driver_right').html(data.y);
             break;
     }
 }
 });
+
+
+
     </script>
 </head>
 <body>
@@ -211,8 +250,6 @@ ws.onmessage = function(event) {
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="#">Dashboard</a></li>
-                <li><a href="#about">Settings</a></li>
-                <li><a href="#contact">Help</a></li>
             </ul>
         </div>
         <!--/.nav-collapse -->
@@ -225,7 +262,6 @@ ws.onmessage = function(event) {
         <div class="inline twoCol">
             <h2>Manual</h2>
 
-            <div id="manual_chart"></div>
             <div id="manual_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -235,11 +271,11 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="manual_chart" class="chart"></div>
         </div>
         <div class="inline twoCol">
             <h2>Randomize</h2>
 
-            <div id="randomize_chart"></div>
             <div id="randomize_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -249,6 +285,7 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="randomize_chart" class="chart"></div>
         </div>
         <br class="clearBoth"/>
     </div>
@@ -256,7 +293,6 @@ ws.onmessage = function(event) {
         <div class="inline twoCol">
             <h2>Rodeo-Swap</h2>
 
-            <div id="rodeo_swap_chart"></div>
             <div id="rodeo_swap_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -266,11 +302,11 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="rodeo_swap_chart" class="chart"></div>
         </div>
         <div class="inline twoCol">
             <h2>Back</h2>
 
-            <div id="back_chart"></div>
             <div id="back_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -280,13 +316,13 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="back_chart" class="chart"></div>
         </div>
     </div>
     <div>
         <div class="inline twoCol">
             <h2>Controller</h2>
 
-            <div id="controller_chart"></div>
             <div id="controller_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -296,12 +332,12 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="controller_chart" class="chart"></div>
         </div>
 
         <div class="inline twoCol">
             <h2>Stop</h2>
 
-            <div id="stop_chart"></div>
             <div id="stop_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -311,6 +347,7 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="stop_chart" class="chart"></div>
         </div>
         <br class="clearBoth"/>
     </div>
@@ -318,7 +355,6 @@ ws.onmessage = function(event) {
         <div class="inline twoCol">
             <h2>PID</h2>
 
-            <div id="pid_chart"></div>
             <div id="pid_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -328,11 +364,11 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="pid_chart" class="chart"></div>
         </div>
         <div class="inline twoCol">
             <h2>Driver</h2>
 
-            <div id="driver_chart"></div>
             <div id="driver_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
@@ -342,6 +378,7 @@ ws.onmessage = function(event) {
                     </div>
                 </div>
             </div>
+            <div id="driver_chart" class="chart"></div>
         </div>
         <br class="clearBoth"/>
     </div>

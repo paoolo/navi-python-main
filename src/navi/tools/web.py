@@ -18,7 +18,7 @@ for i in range(4):
 
 _pwd += '/web'
 
-_app_flask = Flask(__name__, template_folder=_pwd)
+_app_flask = Flask(__name__, template_folder=_pwd, static_url_path='/', static_folder=_pwd)
 
 
 @_app_flask.errorhandler(404)
@@ -34,6 +34,11 @@ def internal_error(error):
 @_app_flask.route('/')
 def index():
     return render_template('index.html')
+
+
+@_app_flask.route('/canvasjs.min.js')
+def canvas():
+    return _app_flask.send_static_file('canvasjs.min.js')
 
 
 def shutdown_server():
@@ -109,4 +114,4 @@ if __name__ == '__main__':
 
     while True:
         emit({'data': 'test', 'target': 'driver', 'x': int(random.random() * 100), 'y': int(random.random() * 100)})
-        time.sleep(1)
+        time.sleep(0.07)
