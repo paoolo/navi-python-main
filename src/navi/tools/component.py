@@ -53,7 +53,6 @@ class Randomize(Component):
 
     def __init__(self):
         self.__left, self.__right = 0.0, 0.0
-        self.__back = Back()
 
     def modify(self, left, right):
         value = (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
@@ -62,7 +61,19 @@ class Randomize(Component):
         self.__left += value * weight
         self.__right += value * (1.0 - weight)
 
-        self.__left, self.__right = self.__back.modify(self.__left, self.__right)
+        left, right = self.__left, self.__right
+        if (left + right) / 2.0 < 0:
+            if left < 0 and right < 0:
+                left, right = 0.0, 0.0
+
+            elif left < 0 < right:
+                right = right if right < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                left = -right
+
+            elif left > 0 > right:
+                left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                right = -left
+        self.__left, self.__right = left, right
 
         web.emit({'target': 'randomize',
                   'data': 'randomize(%d, %d)' % (self.__left, self.__right),
