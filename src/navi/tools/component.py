@@ -39,7 +39,7 @@ class Manual(Component):
     def modify(self, left, right):
         web.emit({'target': 'manual',
                   'data': 'manual(%d, %d)' % (self.__left, self.__right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return self.__left, self.__right
 
 
@@ -66,7 +66,7 @@ class Randomize(Component):
 
         web.emit({'target': 'randomize',
                   'data': 'randomize(%d, %d)' % (self.__left, self.__right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return self.__left, self.__right
 
     @staticmethod
@@ -122,7 +122,7 @@ class RodeoSwap(Component):
 
         web.emit({'target': 'rodeo_swap',
                   'data': 'rodeo_swap(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
     def handle(self, scan):
@@ -152,7 +152,7 @@ class Back(Component):
 
         web.emit({'target': 'back',
                   'data': 'back(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
 
@@ -194,7 +194,7 @@ class Controller(Component):
 
         web.emit({'target': 'controller',
                   'data': 'controller(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
     def handle(self, scan):
@@ -212,7 +212,7 @@ class Stop(Component):
         left, right = Stop.__check(left), Stop.__check(right)
         web.emit({'target': 'stop',
                   'data': 'stop(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
     @staticmethod
@@ -250,7 +250,7 @@ class PID(Component):
 
         web.emit({'target': 'pid',
                   'data': 'pid(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
 
@@ -278,7 +278,7 @@ class Driver(Component):
 
         web.emit({'target': 'driver',
                   'data': 'driver(%d, %d)' % (left, right),
-                  'x': left, 'y': right})
+                  'x': int(left), 'y': int(right)})
         return left, right
 
     @staticmethod
