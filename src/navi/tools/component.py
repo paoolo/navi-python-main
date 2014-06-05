@@ -140,6 +140,29 @@ class RodeoSwap(Component):
         self.__scan = scan
 
 
+class LowPassFilter(Component):
+    """
+    Used to low pass.
+    """
+
+    LOW_PASS_ALPHA = float(config.LOW_PASS_ALPHA)
+
+    def __init__(self):
+        self.__old_left, self.__old_right = 0, 0
+
+    def modify(self, left, right):
+        left = LowPassFilter.__low_pass_filter(left, self.__old_left)
+        right = LowPassFilter.__low_pass_filter(right, self.__old_right)
+        self.__old_left, self.__old_right = left, right
+        return left, right
+
+    @staticmethod
+    def __low_pass_filter(new_value, old_value):
+        if old_value is None:
+            return new_value
+        return old_value + LowPassFilter.LOW_PASS_ALPHA * (new_value - old_value)
+
+
 class Back(Component):
     """
     Used if robot goes back.
@@ -270,7 +293,6 @@ class Driver(Component):
     Used to drive.
     """
 
-    LOW_PASS_ALPHA = float(config.LOW_PASS_ALPHA)
     CHANGE_DIFF_LIMIT = float(config.CHANGE_DIFF_LIMIT)
 
     def __init__(self, engine):
@@ -280,20 +302,10 @@ class Driver(Component):
     def modify(self, left, right):
         if abs(self.__old_left - left) > Driver.CHANGE_DIFF_LIMIT \
                 or abs(self.__old_right - right) > Driver.CHANGE_DIFF_LIMIT:
-            left = Driver.__low_pass_filter(left, self.__old_left)
-            right = Driver.__low_pass_filter(right, self.__old_right)
-
             self.__old_left, self.__old_right = left, right
-
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
         web.emit({'target': 'driver',
                   'data': 'driver(%d, %d)' % (left, right),
                   'x': int(left), 'y': int(right)})
         return left, right
-
-    @staticmethod
-    def __low_pass_filter(new_value, old_value):
-        if old_value is None:
-            return new_value
-        return old_value + Driver.LOW_PASS_ALPHA * (new_value - old_value)

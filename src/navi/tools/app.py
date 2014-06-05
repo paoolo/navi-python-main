@@ -96,6 +96,7 @@ class App(object):
         self.__hokuyo.subscribe(rodeo_swap)
         self.__chain.append(rodeo_swap)
 
+        self.__chain.append(component.LowPassFilter())
         self.__chain.append(component.Back())
 
         controller = component.Controller()
