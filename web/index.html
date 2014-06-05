@@ -144,74 +144,34 @@ ws.onmessage = function(event) {
 
     switch(data.target) {
         case 'manual':
-            manual_chart.series[0].addPoint({y: data.x});
-            manual_chart.series[1].addPoint({y: data.y});
-            manual_chart.series[0].data[0].remove(false, false);
-            manual_chart.series[1].data[0].remove(false, false);
-            manual_chart.redraw();
             $('#manual_left').html(data.x);
             $('#manual_right').html(data.y);
             break;
         case 'randomize':
-            randomize_chart.series[0].addPoint({y: data.x});
-            randomize_chart.series[1].addPoint({y: data.y});
-            randomize_chart.series[0].data[0].remove(false, false);
-            randomize_chart.series[1].data[0].remove(false, false);
-            randomize_chart.redraw();
             $('#randomize_left').html(data.x);
             $('#randomize_right').html(data.y);
             break;
         case 'rodeo_swap':
-            rodeo_swap_chart.series[0].addPoint({y: data.x});
-            rodeo_swap_chart.series[1].addPoint({y: data.y});
-            rodeo_swap_chart.series[0].data[0].remove(false, false);
-            rodeo_swap_chart.series[1].data[0].remove(false, false);
-            rodeo_swap_chart.redraw();
             $('#rodeo_swap_left').html(data.x);
             $('#rodeo_swap_right').html(data.y);
             break;
         case 'back':
-            back_chart.series[0].addPoint({y: data.x});
-            back_chart.series[1].addPoint({y: data.y});
-            back_chart.series[0].data[0].remove(false, false);
-            back_chart.series[1].data[0].remove(false, false);
-            back_chart.redraw();
             $('#back_left').html(data.x);
             $('#back_right').html(data.y);
             break;
         case 'controller':
-            controller_chart.series[0].addPoint({y: data.x});
-            controller_chart.series[1].addPoint({y: data.y});
-            controller_chart.series[0].data[0].remove(false, false);
-            controller_chart.series[1].data[0].remove(false, false);
-            controller_chart.redraw();
             $('#controller_left').html(data.x);
             $('#controller_right').html(data.y);
             break;
         case 'stop':
-            stop_chart.series[0].addPoint({y: data.x});
-            stop_chart.series[1].addPoint({y: data.y});
-            stop_chart.series[0].data[0].remove(false, false);
-            stop_chart.series[1].data[0].remove(false, false);
-            stop_chart.redraw();
             $('#stop_left').html(data.x);
             $('#stop_right').html(data.y);
             break;
         case 'pid':
-            pid_chart.series[0].addPoint({y: data.x});
-            pid_chart.series[1].addPoint({y: data.y});
-            pid_chart.series[0].data[0].remove(false, false);
-            pid_chart.series[1].data[0].remove(false, false);
-            pid_chart.redraw();
             $('#pid_left').html(data.x);
             $('#pid_right').html(data.y);
             break;
         case 'driver':
-            driver_chart.series[0].addPoint({y: data.x});
-            driver_chart.series[1].addPoint({y: data.y});
-            driver_chart.series[0].data[0].remove(false, false);
-            driver_chart.series[1].data[0].remove(false, false);
-            driver_chart.redraw();
             $('#driver_left').html(data.x);
             $('#driver_right').html(data.y);
             break;
