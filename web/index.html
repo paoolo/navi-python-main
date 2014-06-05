@@ -5,14 +5,35 @@
 
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu&subset=latin,latin-ext" type="text/css">
 
     <style>
+        ::-webkit-scrollbar {
+        width: 12px; /* for vertical scrollbars */
+        height: 12px; /* for horizontal scrollbars */
+        }
+        ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.5);
+        }
+        * {
+        font-family: 'Ubuntu', sans-serif;
+        }
         body {
         padding-top: 50px;
         }
         .starter-template {
         padding: 40px 15px;
         text-align: center;
+        }
+        div.panel {
+        background: gray;
+        padding: 6px;
+        }
+        .panelText {
+        font-size: 20pt;
         }
         div.inline {
         margin: 10px;
@@ -36,22 +57,167 @@
         overflow-x: hidden;
         overflow-y: scroll;
         }
+        .outer {
+        overflow: hidden;
+        }
+        .center-helper {
+        float: left;
+        position: relative;
+        left: 50%;
+        }
+        .inner {
+        float: left;
+        position: relative;
+        left: -50%;
+        }
     </style>
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-
+    <script type="text/javascript" src="//code.highcharts.com/stock/highstock.js"></script>
     <script type="text/javascript">
-        $(document).ready(function(){
-            var ws = new WebSocket('ws://' + document.domain + ':8888/');
-            ws.onmessage = function(event) {
-                var data = $.parseJSON(event.data);
-                $('#log').prepend(data.target + ' => ' + data.data + '<br/>');
-                $('#' + data.target).prepend(data.data + '<br/>');
-            }
-        });
+$(document).ready(function() {
+var manual_chart = new Highcharts.Chart({
+    title: {text: 'Manual' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'manual_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var randomize_chart = new Highcharts.Chart({
+    title: {text: 'Randomize' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'randomize_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var rodeo_swap_chart = new Highcharts.Chart({
+    title: {text: 'Rodeo Swap' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'rodeo_swap_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var back_chart = new Highcharts.Chart({
+    title: {text: 'Back' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'back_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var controller_chart = new Highcharts.Chart({
+    title: {text: 'Controller' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'controller_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var stop_chart = new Highcharts.Chart({
+    title: {text: 'Stop' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'stop_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var pid_chart = new Highcharts.Chart({
+    title: {text: 'PID' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'pid_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
+var driver_chart = new Highcharts.Chart({
+    title: {text: 'Driver' },
+    // scrollbar: { enabled: true },
+    // xAxis: { max: 12, },
+    chart: { renderTo: 'driver_chart', type: 'spline', },
+    series: [{ name: 'left', data: [0,0,0,0,0,0,0,0,0,0] }, { name: 'right', data: [0,0,0,0,0,0,0,0,0,0] }],
+});
 
+var ws = new WebSocket('ws://' + document.domain + ':8888/');
+
+ws.onmessage = function(event) {
+    var data = $.parseJSON(event.data);
+
+    $('#log').prepend(data.target + ' => ' + data.data + '<br/>');
+
+    switch(data.target) {
+        case 'manual':
+            manual_chart.series[0].addPoint({y: data.x});
+            manual_chart.series[1].addPoint({y: data.y});
+            manual_chart.series[0].data[0].remove(false, false);
+            manual_chart.series[1].data[0].remove(false, false);
+            manual_chart.redraw();
+            $('#manual_left').html(data.x);
+            $('#manual_right').html(data.y);
+            break;
+        case 'randomize':
+            randomize_chart.series[0].addPoint({y: data.x});
+            randomize_chart.series[1].addPoint({y: data.y});
+            randomize_chart.series[0].data[0].remove(false, false);
+            randomize_chart.series[1].data[0].remove(false, false);
+            randomize_chart.redraw();
+            $('#randomize_left').html(data.x);
+            $('#randomize_right').html(data.y);
+            break;
+        case 'rodeo_swap':
+            rodeo_swap_chart.series[0].addPoint({y: data.x});
+            rodeo_swap_chart.series[1].addPoint({y: data.y});
+            rodeo_swap_chart.series[0].data[0].remove(false, false);
+            rodeo_swap_chart.series[1].data[0].remove(false, false);
+            rodeo_swap_chart.redraw();
+            $('#rodeo_swap_left').html(data.x);
+            $('#rodeo_swap_right').html(data.y);
+            break;
+        case 'back':
+            back_chart.series[0].addPoint({y: data.x});
+            back_chart.series[1].addPoint({y: data.y});
+            back_chart.series[0].data[0].remove(false, false);
+            back_chart.series[1].data[0].remove(false, false);
+            back_chart.redraw();
+            $('#back_left').html(data.x);
+            $('#back_right').html(data.y);
+            break;
+        case 'controller':
+            controller_chart.series[0].addPoint({y: data.x});
+            controller_chart.series[1].addPoint({y: data.y});
+            controller_chart.series[0].data[0].remove(false, false);
+            controller_chart.series[1].data[0].remove(false, false);
+            controller_chart.redraw();
+            $('#controller_left').html(data.x);
+            $('#controller_right').html(data.y);
+            break;
+        case 'stop':
+            stop_chart.series[0].addPoint({y: data.x});
+            stop_chart.series[1].addPoint({y: data.y});
+            stop_chart.series[0].data[0].remove(false, false);
+            stop_chart.series[1].data[0].remove(false, false);
+            stop_chart.redraw();
+            $('#stop_left').html(data.x);
+            $('#stop_right').html(data.y);
+            break;
+        case 'pid':
+            pid_chart.series[0].addPoint({y: data.x});
+            pid_chart.series[1].addPoint({y: data.y});
+            pid_chart.series[0].data[0].remove(false, false);
+            pid_chart.series[1].data[0].remove(false, false);
+            pid_chart.redraw();
+            $('#pid_left').html(data.x);
+            $('#pid_right').html(data.y);
+            break;
+        case 'driver':
+            driver_chart.series[0].addPoint({y: data.x});
+            driver_chart.series[1].addPoint({y: data.y});
+            driver_chart.series[0].data[0].remove(false, false);
+            driver_chart.series[1].data[0].remove(false, false);
+            driver_chart.redraw();
+            $('#driver_left').html(data.x);
+            $('#driver_right').html(data.y);
+            break;
+    }
+}
+});
     </script>
 </head>
 <body>
@@ -81,42 +247,63 @@
 <div class="container">
 
     <div>
-        <div class="inline oneCol">
-            <h2>Logs</h2>
-
-            <div id="log" class="scroll">
-            </div>
-        </div>
-        <br class="clearBoth"/>
-    </div>
-
-    <div>
         <div class="inline twoCol">
             <h2>Manual</h2>
 
-            <div id="manual_log" class="scroll">
+            <div id="manual_chart"></div>
+            <div id="manual_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="manual_left" class="inline panelText">0.0</div>
+                        <div id="manual_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="inline twoCol">
             <h2>Randomize</h2>
 
-            <div id="randomize_log" class="scroll">
+            <div id="randomize_chart"></div>
+            <div id="randomize_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="randomize_left" class="inline panelText">0.0</div>
+                        <div id="randomize_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
         <br class="clearBoth"/>
     </div>
-
     <div>
         <div class="inline twoCol">
             <h2>Rodeo-Swap</h2>
 
-            <div id="rodeo_swap_log" class="scroll">
+            <div id="rodeo_swap_chart"></div>
+            <div id="rodeo_swap_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="rodeo_swap_left" class="inline panelText">0.0</div>
+                        <div id="rodeo_swap_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="inline twoCol">
             <h2>Back</h2>
 
-            <div id="back_log" class="scroll">
+            <div id="back_chart"></div>
+            <div id="back_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="back_left" class="inline panelText">0.0</div>
+                        <div id="back_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -124,14 +311,30 @@
         <div class="inline twoCol">
             <h2>Controller</h2>
 
-            <div id="controller_log" class="scroll">
+            <div id="controller_chart"></div>
+            <div id="controller_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="controller_left" class="inline panelText">0.0</div>
+                        <div id="controller_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="inline twoCol">
             <h2>Stop</h2>
 
-            <div id="stop_log" class="scroll">
+            <div id="stop_chart"></div>
+            <div id="stop_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="stop_left" class="inline panelText">0.0</div>
+                        <div id="stop_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
         <br class="clearBoth"/>
@@ -140,13 +343,39 @@
         <div class="inline twoCol">
             <h2>PID</h2>
 
-            <div id="pid_log" class="scroll">
+            <div id="pid_chart"></div>
+            <div id="pid_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="pid_left" class="inline panelText">0.0</div>
+                        <div id="pid_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="inline twoCol">
             <h2>Driver</h2>
 
-            <div id="driver_log" class="scroll">
+            <div id="driver_chart"></div>
+            <div id="driver_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="driver_left" class="inline panelText">0.0</div>
+                        <div id="driver_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br class="clearBoth"/>
+    </div>
+    <div>
+        <div class="inline oneCol">
+            <h2>Logs</h2>
+
+            <div class="panel">
+                <div id="log" class="scroll"></div>
             </div>
         </div>
         <br class="clearBoth"/>

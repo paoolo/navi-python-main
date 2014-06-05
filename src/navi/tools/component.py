@@ -37,8 +37,9 @@ class Manual(Component):
         self.__right += right
 
     def modify(self, left, right):
-        web.emit({'target': 'manual_log', 'data': 'manual(%d, %d)' % (self.__left, self.__right)})
-        # print('manual_log', 'manual(%d, %d)' % (self.__left, self.__right))
+        web.emit({'target': 'manual_log',
+                  'data': 'manual(%d, %d)' % (self.__left, self.__right),
+                  'x': left, 'y': right})
         return self.__left, self.__right
 
 
@@ -63,8 +64,9 @@ class Randomize(Component):
 
         self.__left, self.__right = self.__back.modify(self.__left, self.__right)
 
-        web.emit({'target': 'randomize_log', 'data': 'randomize(%d, %d)' % (self.__left, self.__right)})
-        # print('randomize_log', 'randomize(%d, %d)' % (self.__left, self.__right))
+        web.emit({'target': 'randomize_log',
+                  'data': 'randomize(%d, %d)' % (self.__left, self.__right),
+                  'x': left, 'y': right})
         return self.__left, self.__right
 
     @staticmethod
@@ -94,26 +96,20 @@ class RodeoSwap(Component):
             if min_distance is not None:
                 if min_distance < RodeoSwap.HARD_LIMIT * 2.2:
                     if min_distance_angle < current_angle:
-                        # go to right
                         if left > 0:
-                            # print '>> Rodeo to right'
                             left = left if left < RodeoSwap.ROTATING_SPEED else RodeoSwap.ROTATING_SPEED
                             right = -left  # FIXME(paoolo)
                         else:
                             if right > 0:
-                                # print '>> Swap to right'
                                 _t = left
                                 left = right
                                 right = _t
                     else:
-                        # go to left
                         if right > 0:
-                            # print '>> Rodeo to left'
                             right = right if right < RodeoSwap.ROTATING_SPEED else RodeoSwap.ROTATING_SPEED
                             left = -right  # FIXME(paoolo)
                         else:
                             if left > 0:
-                                # print '>> Swap to left'
                                 _t = right
                                 right = left
                                 left = _t
@@ -124,8 +120,9 @@ class RodeoSwap(Component):
         else:
             left, right = 0.0, 0.0
 
-        web.emit({'target': 'rodeo_swap_log', 'data': 'rodeo_swap(%d, %d)' % (left, right)})
-        # print('rodeo_swap_log', 'rodeo_swap(%d, %d)' % (left, right))
+        web.emit({'target': 'rodeo_swap_log',
+                  'data': 'rodeo_swap(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
     def handle(self, scan):
@@ -153,8 +150,9 @@ class Back(Component):
                 left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
                 right = -left
 
-        web.emit({'target': 'back_log', 'data': 'back(%d, %d)' % (left, right)})
-        # print('back_log', 'back(%d, %d)' % (left, right))
+        web.emit({'target': 'back_log',
+                  'data': 'back(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
 
@@ -194,8 +192,9 @@ class Controller(Component):
             else:
                 left, right = 0.0, 0.0
 
-        web.emit({'target': 'controller_log', 'data': 'controller(%d, %d)' % (left, right)})
-        # print('controller_log', 'controller(%d, %d)' % (left, right))
+        web.emit({'target': 'controller_log',
+                  'data': 'controller(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
     def handle(self, scan):
@@ -211,8 +210,9 @@ class Stop(Component):
 
     def modify(self, left, right):
         left, right = Stop.__check(left), Stop.__check(right)
-        web.emit({'target': 'stop_log', 'data': 'stop(%d, %d)' % (left, right)})
-        # print('stop_log', 'stop(%d, %d)' % (left, right))
+        web.emit({'target': 'stop_log',
+                  'data': 'stop(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
     @staticmethod
@@ -242,16 +242,15 @@ class PID(Component):
         front_right = current_speed.get_front_right_speed()
         rear_right = current_speed.get_rear_right_speed()
 
-        # print '%d, %d, %d, %d' % (front_left, front_right, rear_left, rear_right)
-
         current_left = (front_left + rear_left) / 2.0
         current_right = (front_right + rear_right) / 2.0
 
         left = left - (current_left - left) * PID.ALPHA
         right = right - (current_right - right) * PID.ALPHA
 
-        web.emit({'target': 'pid_log', 'data': 'pid(%d, %d)' % (left, right)})
-        # print('pid_log', 'pid(%d, %d)' % (left, right))
+        web.emit({'target': 'pid_log',
+                  'data': 'pid(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
 
@@ -277,8 +276,9 @@ class Driver(Component):
 
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
-        web.emit({'target': 'driver_log', 'data': 'driver(%d, %d)' % (left, right)})
-        # print('driver_log', 'driver(%d, %d)' % (left, right))
+        web.emit({'target': 'driver_log',
+                  'data': 'driver(%d, %d)' % (left, right),
+                  'x': left, 'y': right})
         return left, right
 
     @staticmethod

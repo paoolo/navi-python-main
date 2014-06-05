@@ -2,11 +2,10 @@ import os
 import logging
 import threading
 import urllib2
+import time
 
 from amber.common import runtime
-
 from flask import Flask, render_template, request
-
 from tornado import websocket, ioloop, web
 
 
@@ -102,3 +101,12 @@ def start():
     _flask_thread = threading.Thread(target=_run_flask)
     _flask_thread.start()
     runtime.add_shutdown_hook(_stop_flask)
+
+
+if __name__ == '__main__':
+    start()
+    import random
+
+    while True:
+        emit({'data': 'test', 'target': 'driver', 'x': int(random.random() * 100), 'y': int(random.random() * 100)})
+        time.sleep(1)
