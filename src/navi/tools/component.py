@@ -37,7 +37,7 @@ class Manual(Component):
         self.__right += right
 
     def modify(self, left, right):
-        web.emit({'target': 'manual_log',
+        web.emit({'target': 'manual',
                   'data': 'manual(%d, %d)' % (self.__left, self.__right),
                   'x': left, 'y': right})
         return self.__left, self.__right
@@ -64,7 +64,7 @@ class Randomize(Component):
 
         self.__left, self.__right = self.__back.modify(self.__left, self.__right)
 
-        web.emit({'target': 'randomize_log',
+        web.emit({'target': 'randomize',
                   'data': 'randomize(%d, %d)' % (self.__left, self.__right),
                   'x': left, 'y': right})
         return self.__left, self.__right
@@ -120,7 +120,7 @@ class RodeoSwap(Component):
         else:
             left, right = 0.0, 0.0
 
-        web.emit({'target': 'rodeo_swap_log',
+        web.emit({'target': 'rodeo_swap',
                   'data': 'rodeo_swap(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
@@ -150,7 +150,7 @@ class Back(Component):
                 left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
                 right = -left
 
-        web.emit({'target': 'back_log',
+        web.emit({'target': 'back',
                   'data': 'back(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
@@ -192,7 +192,7 @@ class Controller(Component):
             else:
                 left, right = 0.0, 0.0
 
-        web.emit({'target': 'controller_log',
+        web.emit({'target': 'controller',
                   'data': 'controller(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
@@ -210,7 +210,7 @@ class Stop(Component):
 
     def modify(self, left, right):
         left, right = Stop.__check(left), Stop.__check(right)
-        web.emit({'target': 'stop_log',
+        web.emit({'target': 'stop',
                   'data': 'stop(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
@@ -248,7 +248,7 @@ class PID(Component):
         left = left - (current_left - left) * PID.ALPHA
         right = right - (current_right - right) * PID.ALPHA
 
-        web.emit({'target': 'pid_log',
+        web.emit({'target': 'pid',
                   'data': 'pid(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
@@ -276,7 +276,7 @@ class Driver(Component):
 
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
-        web.emit({'target': 'driver_log',
+        web.emit({'target': 'driver',
                   'data': 'driver(%d, %d)' % (left, right),
                   'x': left, 'y': right})
         return left, right
