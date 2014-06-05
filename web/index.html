@@ -144,10 +144,20 @@ ws.onmessage = function(event) {
 
     switch(data.target) {
         case 'manual':
+            manual_chart.series[0].addPoint({y: data.x});
+            manual_chart.series[1].addPoint({y: data.y});
+            manual_chart.series[0].data[0].remove(false, false);
+            manual_chart.series[1].data[0].remove(false, false);
+            manual_chart.redraw();
             $('#manual_left').html(data.x);
             $('#manual_right').html(data.y);
             break;
         case 'randomize':
+            randomize_chart.series[0].addPoint({y: data.x});
+            randomize_chart.series[1].addPoint({y: data.y});
+            randomize_chart.series[0].data[0].remove(false, false);
+            randomize_chart.series[1].data[0].remove(false, false);
+            randomize_chart.redraw();
             $('#randomize_left').html(data.x);
             $('#randomize_right').html(data.y);
             break;
@@ -172,6 +182,11 @@ ws.onmessage = function(event) {
             $('#pid_right').html(data.y);
             break;
         case 'driver':
+            driver_chart.series[0].addPoint({y: data.x});
+            driver_chart.series[1].addPoint({y: data.y});
+            driver_chart.series[0].data[0].remove(false, false);
+            driver_chart.series[1].data[0].remove(false, false);
+            driver_chart.redraw();
             $('#driver_left').html(data.x);
             $('#driver_right').html(data.y);
             break;
