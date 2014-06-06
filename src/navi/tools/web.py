@@ -18,7 +18,7 @@ for i in range(4):
 
 _pwd += '/web'
 
-_app_flask = Flask(__name__, template_folder=_pwd, static_url_path='/', static_folder=_pwd)
+_app_flask = Flask(__name__, template_folder=_pwd, static_folder=os.path.join(_pwd, 'static'), static_url_path='')
 
 
 @_app_flask.errorhandler(404)
@@ -36,9 +36,14 @@ def index():
     return render_template('index.html')
 
 
-@_app_flask.route('/canvasjs.min.js')
-def canvas():
-    return _app_flask.send_static_file('canvasjs.min.js')
+@_app_flask.route('/settings')
+def settings():
+    return render_template('settings.html')
+
+
+@_app_flask.route('/static/<path:path>')
+def static_proxy(path):
+    return _app_flask.send_static_file(path)
 
 
 def shutdown_server():

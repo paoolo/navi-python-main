@@ -1,0 +1,65 @@
+::-webkit-scrollbar {
+width: 12px; /* for vertical scrollbars */
+height: 12px; /* for horizontal scrollbars */
+}
+::-webkit-scrollbar-track {
+background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+background: rgba(0, 0, 0, 0.5);
+}
+* {
+font-family: 'Ubuntu', sans-serif;
+}
+body {
+padding-top: 50px;
+}
+.starter-template {
+padding: 40px 15px;
+text-align: center;
+}
+div.panel {
+background: gray;
+padding: 6px;
+}
+.panelText {
+font-size: 20pt;
+}
+div.inline {
+margin: 10px;
+float: left;
+}
+.oneCol {
+width: 97%;
+}
+.twoCol {
+width: 47%;
+}
+.threeCol {
+width: 30%;
+}
+.clearBoth {
+clear: both;
+}
+.scroll {
+background: gray;
+height: 150px;
+overflow-x: hidden;
+overflow-y: scroll;
+}
+.outer {
+overflow: hidden;
+}
+.center-helper {
+float: left;
+position: relative;
+left: 50%;
+}
+.inner {
+float: left;
+position: relative;
+left: -50%;
+}
+.chart {
+height: 300px;
+}

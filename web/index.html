@@ -6,250 +6,27 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu&subset=latin,latin-ext" type="text/css">
-
-    <style>
-        ::-webkit-scrollbar {
-        width: 12px; /* for vertical scrollbars */
-        height: 12px; /* for horizontal scrollbars */
-        }
-        ::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.1);
-        }
-        ::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.5);
-        }
-        * {
-        font-family: 'Ubuntu', sans-serif;
-        }
-        body {
-        padding-top: 50px;
-        }
-        .starter-template {
-        padding: 40px 15px;
-        text-align: center;
-        }
-        div.panel {
-        background: gray;
-        padding: 6px;
-        }
-        .panelText {
-        font-size: 20pt;
-        }
-        div.inline {
-        margin: 10px;
-        float: left;
-        }
-        .oneCol {
-        width: 97%;
-        }
-        .twoCol {
-        width: 47%;
-        }
-        .threeCol {
-        width: 30%;
-        }
-        .clearBoth {
-        clear: both;
-        }
-        .scroll {
-        background: gray;
-        height: 150px;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        }
-        .outer {
-        overflow: hidden;
-        }
-        .center-helper {
-        float: left;
-        position: relative;
-        left: 50%;
-        }
-        .inner {
-        float: left;
-        position: relative;
-        left: -50%;
-        }
-        .chart {
-        height: 300px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css" type="text/css">
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-    <script type="text/javascript" src="/canvasjs.min.js"></script>
-    <script type="text/javascript">
-$(document).ready(function() {
-var manual_t = 0;
-var manual_left = [];
-var manual_right = [];
-var manual_chart = new CanvasJS.Chart('manual_chart', {
-    data: [{ type: 'line', dataPoints: manual_left },
-           { type: 'line', dataPoints: manual_right }]
-});
-var randomize_t = 0;
-var randomize_left = [];
-var randomize_right = [];
-var randomize_chart = new CanvasJS.Chart('randomize_chart', {
-    data: [{ type: 'line', dataPoints: randomize_left },
-           { type: 'line', dataPoints: randomize_right }]
-});
-var rodeo_swap_t = 0;
-var rodeo_swap_left = [];
-var rodeo_swap_right = [];
-var rodeo_swap_chart = new CanvasJS.Chart('rodeo_swap_chart', {
-    data: [{ type: 'line', dataPoints: rodeo_swap_left },
-           { type: 'line', dataPoints: rodeo_swap_right }]
-});
-var back_t = 0;
-var back_left = [];
-var back_right = [];
-var back_chart = new CanvasJS.Chart('back_chart', {
-    data: [{ type: 'line', dataPoints: back_left },
-           { type: 'line', dataPoints: back_right }]
-});
-var controller_t = 0;
-var controller_left = [];
-var controller_right = [];
-var controller_chart = new CanvasJS.Chart('controller_chart', {
-    data: [{ type: 'line', dataPoints: controller_left },
-           { type: 'line', dataPoints: controller_right }]
-});
-var stop_t = 0;
-var stop_left = [];
-var stop_right = [];
-var stop_chart = new CanvasJS.Chart('stop_chart', {
-    data: [{ type: 'line', dataPoints: stop_left },
-           { type: 'line', dataPoints: stop_right }]
-});
-var pid_t = 0;
-var pid_left = [];
-var pid_right = [];
-var pid_chart = new CanvasJS.Chart('pid_chart', {
-    data: [{ type: 'line', dataPoints: pid_left },
-           { type: 'line', dataPoints: pid_right }]
-});
-var driver_t = 0;
-var driver_left = [];
-var driver_right = [];
-var driver_chart = new CanvasJS.Chart('driver_chart', {
-    data: [{ type: 'line', dataPoints: driver_left },
-           { type: 'line', dataPoints: driver_right }]
-});
-
-var ws = new WebSocket('ws://' + document.domain + ':8888/');
-
-ws.onmessage = function(event) {
-    var data = $.parseJSON(event.data);
-
-    $('#log').prepend(data.target + ' => ' + data.data + '<br/>');
-
-    switch(data.target) {
-        case 'manual':
-            manual_t = manual_t + 1;
-            manual_left.push({x: manual_t, y: data.x});
-            manual_right.push({x: manual_t, y: data.y});
-            if (manual_left.length >= 50) { manual_left.shift(); }
-            if (manual_right.length >= 50) { manual_right.shift(); }
-            manual_chart.render();
-            $('#manual_left').html(data.x);
-            $('#manual_right').html(data.y);
-            break;
-        case 'randomize':
-            randomize_t = randomize_t + 1;
-            randomize_left.push({x: randomize_t, y: data.x});
-            randomize_right.push({x: randomize_t, y: data.y});
-            if (randomize_left.length >= 50) { randomize_left.shift(); }
-            if (randomize_right.length >= 50) { randomize_right.shift(); }
-            randomize_chart.render();
-            $('#randomize_left').html(data.x);
-            $('#randomize_right').html(data.y);
-            break;
-        case 'rodeo_swap':
-            rodeo_swap_t = rodeo_swap_t + 1;
-            rodeo_swap_left.push({x: rodeo_swap_t, y: data.x});
-            rodeo_swap_right.push({x: rodeo_swap_t, y: data.y});
-            if (rodeo_swap_left.length >= 50) { rodeo_swap_left.shift(); }
-            if (rodeo_swap_right.length >= 50) { rodeo_swap_right.shift(); }
-            rodeo_swap_chart.render();
-            $('#rodeo_swap_left').html(data.x);
-            $('#rodeo_swap_right').html(data.y);
-            break;
-        case 'back':
-            back_t = back_t + 1;
-            back_left.push({x: back_t, y: data.x});
-            back_right.push({x: back_t, y: data.y});
-            if (back_left.length >= 50) { back_left.shift(); }
-            if (back_right.length >= 50) { back_right.shift(); }
-            back_chart.render();
-            $('#back_left').html(data.x);
-            $('#back_right').html(data.y);
-            break;
-        case 'controller':
-            controller_t = controller_t + 1;
-            controller_left.push({x: controller_t, y: data.x});
-            controller_right.push({x: controller_t, y: data.y});
-            if (controller_left.length >= 50) { controller_left.shift(); }
-            if (controller_right.length >= 50) { controller_right.shift(); }
-            controller_chart.render();
-            $('#controller_left').html(data.x);
-            $('#controller_right').html(data.y);
-            break;
-        case 'stop':
-            stop_t = stop_t + 1;
-            stop_left.push({x: stop_t, y: data.x});
-            stop_right.push({x: stop_t, y: data.y});
-            if (stop_left.length >= 50) { stop_left.shift(); }
-            if (stop_right.length >= 50) { stop_right.shift(); }
-            stop_chart.render();
-            $('#stop_left').html(data.x);
-            $('#stop_right').html(data.y);
-            break;
-        case 'pid':
-            pid_t = pid_t + 1;
-            pid_left.push({x: pid_t, y: data.x});
-            pid_right.push({x: pid_t, y: data.y});
-            if (pid_left.length >= 50) { pid_left.shift(); }
-            if (pid_right.length >= 50) { pid_right.shift(); }
-            pid_chart.render();
-            $('#pid_left').html(data.x);
-            $('#pid_right').html(data.y);
-            break;
-        case 'driver':
-            driver_t = driver_t + 1;
-            driver_left.push({x: driver_t, y: data.x});
-            driver_right.push({x: driver_t, y: data.y});
-            if (driver_left.length >= 50) { driver_left.shift(); }
-            if (driver_right.length >= 50) { driver_right.shift(); }
-            driver_chart.render();
-            $('#driver_left').html(data.x);
-            $('#driver_right').html(data.y);
-            break;
-    }
-}
-});
-
-
-
-    </script>
+    <script type="text/javascript" src="/static/canvasjs.min.js"></script>
+    <script type="text/javascript" src="/static/ejs_production.js"></script>
+    <script type="text/javascript" src="/static/view.js"></script>
+    <script type="text/javascript" src="/static/scripts.js"></script>
 </head>
 <body>
 
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Navi</a>
+            <a class="navbar-brand" href="/">Navi</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Dashboard</a></li>
+                <li class="active"><a href="/">Dashboard</a></li>
+                <li><a href="/settings">Settings</a></li>
             </ul>
         </div>
         <!--/.nav-collapse -->

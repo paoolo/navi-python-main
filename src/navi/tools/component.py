@@ -262,12 +262,23 @@ class PID(Component):
     """
 
     ALPHA = float(config.PID_ALPHA)
+    P, I, D = 0, 0, 0
 
     def __init__(self, engine):
         self.__engine = engine
+        self.__previous_error, self.__integral = 0.0, 0.0
+
+    def __pid(self, set_point=None, measured_value=None, dt=None):
+        error = set_point - measured_value
+        self.__integral += error * dt
+        derivative = (error - self.__previous_error) / dt
+        output = PID.P * error + PID.I * self.__integral + PID.D * derivative
+        self.__previous_error = error
+        # wait(dt)
 
     def modify(self, left, right):
         # FIXME(paoolo) asynchronous this
+        # FIXME(paoolo) check if value is ok?
         current_speed = self.__engine.get_current_motors_speed()
 
         front_left = current_speed.get_front_left_speed()
