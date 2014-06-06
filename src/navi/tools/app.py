@@ -92,11 +92,12 @@ class App(object):
         self.__roboclaw = roboclaw.RoboclawProxy(self.__amber_client, 0)
 
     def __configure_chain(self):
+        self.__chain.append(component.LowPassFilter())
+
         rodeo_swap = component.RodeoSwap()
         self.__hokuyo.subscribe(rodeo_swap)
         self.__chain.append(rodeo_swap)
 
-        self.__chain.append(component.LowPassFilter())
         self.__chain.append(component.Back())
 
         controller = component.Controller()
