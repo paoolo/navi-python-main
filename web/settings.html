@@ -10,6 +10,19 @@
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $('#save_button').click(function () {
+            alert("save");
+        });
+
+        $('#cancel_button').click(function () {
+            alert("cancel");
+        });
+
+        $('#reload_button').click(function () {
+            alert("reload");
+        });
+    </script>
 </head>
 <body>
 
@@ -29,6 +42,223 @@
 </div>
 
 <div class="container">
+
+<form class="form-horizontal" method="post">
+<fieldset>
+
+<!-- Form Name -->
+<legend>Settings</legend>
+
+<!-- Button (Double) -->
+<div class="form-group">
+    <label class="col-md-4 control-label"></label>
+
+    <div class="col-md-8">
+        <button id="save_button" name="save_button" class="btn btn-success">Save save</button>
+        <button id="cancel_button" name="cancel_button" class="btn btn-danger">Cancel changes</button>
+        <button id="reload_button" name="reload_button" class="btn btn-info">Reload application</button>
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Speed settings</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="MAX_SPEED">Max speed</label>
+
+    <div class="col-md-6">
+        <input id="MAX_SPEED" name="MAX_SPEED" type="text" placeholder=""
+               class="form-control input-md" value="{{ MAX_SPEED }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="LOW_PASS_ALPHA">Low pass alpha</label>
+
+    <div class="col-md-6">
+        <input id="LOW_PASS_ALPHA" name="LOW_PASS_ALPHA" type="text" placeholder=""
+               class="form-control input-md" value="{{ LOW_PASS_ALPHA }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="CHANGE_DIFF_LIMIT">Change diff limit</label>
+
+    <div class="col-md-6">
+        <input id="CHANGE_DIFF_LIMIT" name="CHANGE_DIFF_LIMIT" type="text" placeholder=""
+               class="form-control input-md" value="{{ CHANGE_DIFF_LIMIT }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Robot dimensions</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="ROBO_WIDTH">Robo width</label>
+
+    <div class="col-md-6">
+        <input id="ROBO_WIDTH" name="ROBO_WIDTH" type="text" placeholder=""
+               class="form-control input-md" value="{{ ROBO_WIDTH }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Distances limit</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="HARD_LIMIT">Hard limit</label>
+
+    <div class="col-md-6">
+        <input id="HARD_LIMIT" name="HARD_LIMIT" type="text" placeholder=""
+               class="form-control input-md" value="{{ HARD_LIMIT }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="SOFT_LIMIT">Soft limit</label>
+
+    <div class="col-md-6">
+        <input id="SOFT_LIMIT" name="SOFT_LIMIT" type="text" placeholder=""
+               class="form-control input-md" value="{{ SOFT_LIMIT }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Scanner laser settings</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="SCANNER_DIST_OFFSET">Scanner distance offset</label>
+
+    <div class="col-md-6">
+        <input id="SCANNER_DIST_OFFSET" name="SCANNER_DIST_OFFSET" type="text" placeholder=""
+               class="form-control input-md" value="{{ SCANNER_DIST_OFFSET }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="ANGLE_RANGE">Angle range</label>
+
+    <div class="col-md-6">
+        <input id="ANGLE_RANGE" name="ANGLE_RANGE" type="text" placeholder=""
+               class="form-control input-md" value="{{ ANGLE_RANGE }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="ANGLE_TRAJECTORY">Angle trajectory</label>
+
+    <div class="col-md-6">
+        <input id="ANGLE_TRAJECTORY" name="ANGLE_TRAJECTORY" type="text" placeholder=""
+               class="form-control input-md" value="{{ ANGLE_TRAJECTORY }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Randomizing speeds parameters</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="RANDOMIZING_WIDTH">Randomizing width</label>
+
+    <div class="col-md-6">
+        <input id="RANDOMIZING_WIDTH" name="RANDOMIZING_WIDTH" type="text" placeholder=""
+               class="form-control input-md" value="{{ RANDOMIZING_WIDTH }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="RANDOMIZING_STEP">Randomizing step</label>
+
+    <div class="col-md-6">
+        <input id="RANDOMIZING_STEP" name="RANDOMIZING_STEP" type="text" placeholder=""
+               class="form-control input-md" value="{{ RANDOMIZING_STEP }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Algorithm settings</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="BACK_ROTATING_SPEED">Back rotating speed</label>
+
+    <div class="col-md-6">
+        <input id="BACK_ROTATING_SPEED" name="BACK_ROTATING_SPEED" type="text" placeholder=""
+               class="form-control input-md" value="{{ BACK_ROTATING_SPEED }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="RODEO_SWAP_ROTATING_SPEED">Rodeo-Spaw rotating speed</label>
+
+    <div class="col-md-6">
+        <input id="RODEO_SWAP_ROTATING_SPEED" name="RODEO_SWAP_ROTATING_SPEED" type="text" placeholder=""
+               class="form-control input-md" value="{{ RODEO_SWAP_ROTATING_SPEED }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="PID_ALPHA">PID alpha</label>
+
+    <div class="col-md-6">
+        <input id="PID_ALPHA" name="PID_ALPHA" type="text" placeholder=""
+               class="form-control input-md" value="{{ PID_ALPHA }}">
+
+    </div>
+</div>
+
+<!-- Form Name -->
+<legend>Manual steering server</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="ADDRESS">Address</label>
+
+    <div class="col-md-6">
+        <input id="ADDRESS" name="ADDRESS" type="text" placeholder=""
+               class="form-control input-md" value="{{ ADDRESS }}">
+
+    </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label class="col-md-4 control-label" for="PORT">Port</label>
+
+    <div class="col-md-6">
+        <input id="PORT" name="PORT" type="text" placeholder=""
+               class="form-control input-md" value="{{ PORT }}">
+
+    </div>
+</div>
+
+</fieldset>
+</form>
 
 </div>
 <!-- /.container -->

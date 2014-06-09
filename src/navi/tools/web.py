@@ -5,11 +5,16 @@ import urllib2
 import time
 
 from amber.common import runtime
+from navi.tools import config
 from flask import Flask, render_template, request
 from tornado import websocket, ioloop, web
 
+from flask import request
+
 
 logging.basicConfig()
+
+_config = {}
 
 _pwd = os.path.abspath(__file__)
 
@@ -22,12 +27,12 @@ _app_flask = Flask(__name__, template_folder=_pwd, static_folder=os.path.join(_p
 
 
 @_app_flask.errorhandler(404)
-def not_found_error(error):
+def not_found_error(_):
     return render_template('404.html'), 404
 
 
 @_app_flask.errorhandler(500)
-def internal_error(error):
+def internal_error(_):
     return render_template('500.html'), 500
 
 
@@ -36,9 +41,24 @@ def index():
     return render_template('index.html')
 
 
-@_app_flask.route('/settings')
+@_app_flask.route('/settings', methods=['GET', 'POST'])
 def settings():
-    return render_template('settings.html')
+    if 'save_button' in request.form:
+        values = dict(request.form.items())
+        del values['save_button']
+        for key, value in values.items():
+            config.set(key, value)
+
+    elif 'cancel_button' in request.form:
+        # nothing to do here
+        pass
+
+    elif 'reload_button' in request.form:
+        if 'app' in _config:
+            _config['app'].reload()
+
+    kwargs = config.get_all()
+    return render_template('settings.html', **kwargs)
 
 
 @_app_flask.route('/static/<path:path>')
@@ -103,7 +123,10 @@ def send(data):
         socket.write_message(data)
 
 
-def start():
+def start(_app=None):
+    if _app is not None:
+        _config['app'] = _app
+
     _tornado_thread = threading.Thread(target=_run_tornado)
     _tornado_thread.start()
     runtime.add_shutdown_hook(_stop_tornado)

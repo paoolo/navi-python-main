@@ -1,3 +1,4 @@
+import abc
 import random
 
 from navi.tools import logic, config, web
@@ -15,10 +16,18 @@ class Chain(list):
         for component in self:
             left, right = component.modify(left, right)
 
+    def reload(self):
+        for component in self:
+            component.reload()
+
 
 class Component(object):
     def modify(self, left, right):
         return left, right
+
+    @abc.abstractmethod
+    def reload(self):
+        pass
 
 
 class Manual(Component):
@@ -42,47 +51,59 @@ class Manual(Component):
                   'x': int(left), 'y': int(right)})
         return self.__left, self.__right
 
+    def reload(self):
+        pass
+
 
 class Randomize(Component):
     """
     Used to randomizing values.
     """
 
-    RANDOMIZING_WIDTH = float(config.RANDOMIZING_WIDTH)
-    RANDOMIZING_STEP = float(config.RANDOMIZING_STEP)
-
     def __init__(self):
         self.__left, self.__right = 0.0, 0.0
+        self.__randomizing_width, self.__randomizing_step = 0.0, 0.0
+        self.__rotating_speed = 0.0
+        self.reload()
 
-    def modify(self, left, right):
-        value = (Randomize.__randomize() * Randomize.RANDOMIZING_STEP)
+    def randomize(self):
+        value = (int(random.random() * self.__randomizing_width - self.__randomizing_width / 2.0)
+                 * self.__randomizing_step)
         weight = random.random()
 
-        self.__left += value * weight
-        self.__right += value * (1.0 - weight)
+        if 0.35 < weight < 0.65:
+            self.__left += value
+            self.__right += value
+        else:
+            self.__left += value * weight
+            self.__right += value * (1.0 - weight)
 
         left, right = self.__left, self.__right
+
         if (left + right) / 2.0 < 0:
             if left < 0 and right < 0:
                 left, right = 0.0, 0.0
 
             elif left < 0 < right:
-                right = right if right < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                right = right if right < self.__rotating_speed else self.__rotating_speed
                 left = -right
 
             elif left > 0 > right:
-                left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                left = left if left < self.__rotating_speed else self.__rotating_speed
                 right = -left
+
         self.__left, self.__right = left, right
 
+    def modify(self, left, right):
         web.emit({'target': 'randomize',
                   'data': 'randomize(%d, %d)' % (self.__left, self.__right),
-                  'x': int(left), 'y': int(right)})
+                  'x': int(self.__left), 'y': int(self.__right)})
         return self.__left, self.__right
 
-    @staticmethod
-    def __randomize():
-        return int(random.random() * Randomize.RANDOMIZING_WIDTH - Randomize.RANDOMIZING_WIDTH / 2.0)
+    def reload(self):
+        self.__randomizing_width = float(config.RANDOMIZING_WIDTH)
+        self.__randomizing_step = float(config.RANDOMIZING_STEP)
+        self.__rotating_speed = float(config.BACK_ROTATING_SPEED)
 
 
 class RodeoSwap(Component):
@@ -90,25 +111,27 @@ class RodeoSwap(Component):
     Used to change values to avoid something.
     """
 
-    ROTATING_SPEED = float(config.RODEO_SWAP_ROTATING_SPEED)
-    ROBO_WIDTH = float(config.ROBO_WIDTH)
-    HARD_LIMIT = float(config.HARD_LIMIT)
-
     def __init__(self):
         self.__scan = None
+        self.__rotating_speed, self.__robo_width, self.__hard_limit = 0.0, 0.0, 0.0
+        self.reload()
+
+    def handle(self, scan):
+        self.__scan = scan
 
     def modify(self, left, right):
         scan = self.__scan
 
         if scan is not None:
-            current_angle = logic.get_angle(left, right, RodeoSwap.ROBO_WIDTH)
+            current_angle = logic.get_angle(left, right, self.__robo_width)
             min_distance, min_distance_angle = logic.get_min_distance(scan, current_angle)
 
             if min_distance is not None:
-                if min_distance < RodeoSwap.HARD_LIMIT * 2.2:
+                # FIXME(paoolo) 2.2 as config param
+                if min_distance < self.__hard_limit * 1.7:
                     if min_distance_angle < current_angle:
                         if left > 0:
-                            left = left if left < RodeoSwap.ROTATING_SPEED else RodeoSwap.ROTATING_SPEED
+                            left = left if left < self.__rotating_speed else self.__rotating_speed
                             right = -left  # FIXME(paoolo)
                         else:
                             if right > 0:
@@ -117,18 +140,21 @@ class RodeoSwap(Component):
                                 right = _t
                     else:
                         if right > 0:
-                            right = right if right < RodeoSwap.ROTATING_SPEED else RodeoSwap.ROTATING_SPEED
+                            right = right if right < self.__rotating_speed else self.__rotating_speed
                             left = -right  # FIXME(paoolo)
                         else:
                             if left > 0:
                                 _t = right
+                                _t = right
                                 right = left
                                 left = _t
 
-                elif min_distance < RodeoSwap.HARD_LIMIT * 1.1:
+                # FIXME(paoolo) 1.1 as config param
+                elif min_distance < self.__hard_limit * 1.2:
                     left = -left
                     right = -right
         else:
+            print 'no scan!'
             left, right = 0.0, 0.0
 
         web.emit({'target': 'rodeo_swap',
@@ -136,8 +162,10 @@ class RodeoSwap(Component):
                   'x': int(left), 'y': int(right)})
         return left, right
 
-    def handle(self, scan):
-        self.__scan = scan
+    def reload(self):
+        self.__rotating_speed = float(config.RODEO_SWAP_ROTATING_SPEED)
+        self.__robo_width = float(config.ROBO_WIDTH)
+        self.__hard_limit = float(config.HARD_LIMIT)
 
 
 class LowPassFilter(Component):
@@ -145,22 +173,24 @@ class LowPassFilter(Component):
     Used to low pass.
     """
 
-    LOW_PASS_ALPHA = float(config.LOW_PASS_ALPHA)
-
     def __init__(self):
         self.__old_left, self.__old_right = 0, 0
+        self.__low_pass_alpha = 0.0
+        self.reload()
 
     def modify(self, left, right):
-        left = LowPassFilter.__low_pass_filter(left, self.__old_left)
-        right = LowPassFilter.__low_pass_filter(right, self.__old_right)
+        left = self.__low_pass_filter(left, self.__old_left)
+        right = self.__low_pass_filter(right, self.__old_right)
         self.__old_left, self.__old_right = left, right
         return left, right
 
-    @staticmethod
-    def __low_pass_filter(new_value, old_value):
+    def __low_pass_filter(self, new_value, old_value):
         if old_value is None:
             return new_value
-        return old_value + LowPassFilter.LOW_PASS_ALPHA * (new_value - old_value)
+        return old_value + self.__low_pass_alpha * (new_value - old_value)
+
+    def reload(self):
+        self.__low_pass_alpha = float(config.LOW_PASS_ALPHA)
 
 
 class Back(Component):
@@ -168,7 +198,9 @@ class Back(Component):
     Used if robot goes back.
     """
 
-    ROTATING_SPEED = float(config.BACK_ROTATING_SPEED)
+    def __init__(self):
+        self.__rotating_speed = 0.0
+        self.reload()
 
     def modify(self, left, right):
         if (left + right) / 2.0 < 0:
@@ -177,11 +209,11 @@ class Back(Component):
                 left, right = 0.0, 0.0
 
             elif left < 0 < right:
-                right = right if right < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                right = right if right < self.__rotating_speed else self.__rotating_speed
                 left = -right
 
             elif left > 0 > right:
-                left = left if left < Back.ROTATING_SPEED else Back.ROTATING_SPEED
+                left = left if left < self.__rotating_speed else self.__rotating_speed
                 right = -left
 
         web.emit({'target': 'back',
@@ -189,38 +221,43 @@ class Back(Component):
                   'x': int(left), 'y': int(right)})
         return left, right
 
+    def reload(self):
+        self.__rotating_speed = float(config.BACK_ROTATING_SPEED)
+
 
 class Controller(Component):
     """
     Used to control speed.
     """
 
-    ROBO_WIDTH = float(config.ROBO_WIDTH)
-    HARD_LIMIT = float(config.HARD_LIMIT)
-    SOFT_LIMIT = float(config.SOFT_LIMIT)
-
     def __init__(self):
         self.__scan = None
+        self.__max_speed, self.__robo_width = 0.0, 0.0
+        self.__hard_limit, self.__soft_limit = 0.0, 0.0
+        self.reload()
+
+    def handle(self, scan):
+        self.__scan = scan
 
     def modify(self, left, right):
         if left > 0 or right > 0:
-            current_angle = logic.get_angle(left, right, Controller.ROBO_WIDTH)
+            current_angle = logic.get_angle(left, right, self.__robo_width)
             scan = self.__scan
 
             if scan is not None:
                 min_distance, _ = logic.get_min_distance(scan, current_angle)
                 if min_distance is not None:
 
-                    if Controller.HARD_LIMIT < min_distance < Controller.SOFT_LIMIT:
+                    if self.__hard_limit < min_distance < self.__soft_limit:
                         current_speed = (left + right) / 2.0
-                        max_speed = logic.get_max_speed(min_distance)
+                        max_speed = self.__get_max_speed(min_distance)
 
                         if current_speed > max_speed:
                             divide = max_speed / current_speed
                             left = left * divide
                             right = right * divide
 
-                    elif min_distance <= Controller.HARD_LIMIT:
+                    elif min_distance <= self.__hard_limit:
                         left, right = 0, 0
 
             else:
@@ -231,8 +268,15 @@ class Controller(Component):
                   'x': int(left), 'y': int(right)})
         return left, right
 
-    def handle(self, scan):
-        self.__scan = scan
+    def __get_max_speed(self, distance):
+        return self.__max_speed / (self.__soft_limit - self.__hard_limit) * float(distance) - \
+               (self.__max_speed * self.__hard_limit) / (self.__soft_limit - self.__hard_limit)
+
+    def reload(self):
+        self.__max_speed = float(config.MAX_SPEED)
+        self.__robo_width = float(config.ROBO_WIDTH)
+        self.__hard_limit = float(config.HARD_LIMIT)
+        self.__soft_limit = float(config.SOFT_LIMIT)
 
 
 class Stop(Component):
@@ -240,20 +284,24 @@ class Stop(Component):
     Used to border maximum speed.
     """
 
-    MAX_SPEED = float(config.MAX_SPEED)
+    def __init__(self):
+        self.__max_speed = 0.0
+        self.reload()
 
     def modify(self, left, right):
-        left, right = Stop.__check(left), Stop.__check(right)
+        left, right = self.__check(left), self.__check(right)
         web.emit({'target': 'stop',
                   'data': 'stop(%d, %d)' % (left, right),
                   'x': int(left), 'y': int(right)})
         return left, right
 
-    @staticmethod
-    def __check(value):
-        return Stop.MAX_SPEED if value > Stop.MAX_SPEED \
-            else -Stop.MAX_SPEED if value < -Stop.MAX_SPEED \
+    def __check(self, value):
+        return self.__max_speed if value > self.__max_speed \
+            else -self.__max_speed if value < -self.__max_speed \
             else value
+
+    def reload(self):
+        self.__max_speed = float(config.MAX_SPEED)
 
 
 class PID(Component):
@@ -261,20 +309,13 @@ class PID(Component):
     Used to PID.
     """
 
-    ALPHA = float(config.PID_ALPHA)
     P, I, D = 0, 0, 0
 
     def __init__(self, engine):
         self.__engine = engine
         self.__previous_error, self.__integral = 0.0, 0.0
-
-    def __pid(self, set_point=None, measured_value=None, dt=None):
-        error = set_point - measured_value
-        self.__integral += error * dt
-        derivative = (error - self.__previous_error) / dt
-        output = PID.P * error + PID.I * self.__integral + PID.D * derivative
-        self.__previous_error = error
-        # wait(dt)
+        self.__alpha = 0.0
+        self.reload()
 
     def modify(self, left, right):
         # FIXME(paoolo) asynchronous this
@@ -290,13 +331,25 @@ class PID(Component):
         current_left = (front_left + rear_left) / 2.0
         current_right = (front_right + rear_right) / 2.0
 
-        left = left - (current_left - left) * PID.ALPHA
-        right = right - (current_right - right) * PID.ALPHA
+        left = left - (current_left - left) * self.__alpha
+        right = right - (current_right - right) * self.__alpha
 
         web.emit({'target': 'pid',
                   'data': 'pid(%d, %d)' % (left, right),
                   'x': int(left), 'y': int(right)})
+
         return left, right
+
+    def __pid(self, set_point=None, measured_value=None, dt=None):
+        error = set_point - measured_value
+        self.__integral += error * dt
+        derivative = (error - self.__previous_error) / dt
+        output = PID.P * error + PID.I * self.__integral + PID.D * derivative
+        self.__previous_error = error
+        # wait(dt)
+
+    def reload(self):
+        self.__alpha = float(config.PID_ALPHA)
 
 
 class Driver(Component):
@@ -304,15 +357,15 @@ class Driver(Component):
     Used to drive.
     """
 
-    CHANGE_DIFF_LIMIT = float(config.CHANGE_DIFF_LIMIT)
-
     def __init__(self, engine):
         self.__engine = engine
         self.__old_left, self.__old_right = 0, 0
+        self.__change_diff_limit = 0.0
+        self.reload()
 
     def modify(self, left, right):
-        if abs(self.__old_left - left) > Driver.CHANGE_DIFF_LIMIT \
-                or abs(self.__old_right - right) > Driver.CHANGE_DIFF_LIMIT:
+        if abs(self.__old_left - left) > self.__change_diff_limit \
+            or abs(self.__old_right - right) > self.__change_diff_limit:
             self.__old_left, self.__old_right = left, right
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
@@ -320,3 +373,6 @@ class Driver(Component):
                   'data': 'driver(%d, %d)' % (left, right),
                   'x': int(left), 'y': int(right)})
         return left, right
+
+    def reload(self):
+        self.__change_diff_limit = float(config.CHANGE_DIFF_LIMIT)

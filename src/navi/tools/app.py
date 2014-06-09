@@ -20,7 +20,6 @@ PORT = int(config.PORT)
 
 class App(object):
     def __init__(self, amber_ip):
-        self.__cond = threading.Condition()
         self.__server_socket = None
 
         self.__amber_ip = amber_ip
@@ -30,7 +29,16 @@ class App(object):
         self.__alive = True
 
         self.__chain = None
+        self.__randomize, self.__generator_thread = None, None
         self.__manual, self.__receiver_thread = None, None
+
+    def __generator_loop(self):
+        while self.__alive:
+            self.__randomize.randomize()
+            print 'generator loop: do it'
+            time.sleep(3.25)
+
+        print 'generator loop: stop'
 
     def __receiver_loop(self):
         self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,7 +48,7 @@ class App(object):
         try:
             while self.__alive:
                 (client_socket, address) = self.__server_socket.accept()
-                print 'manual_thread: client connected'
+                print 'receiver loop: client connected'
 
                 try:
                     while self.__alive:
@@ -60,20 +68,20 @@ class App(object):
                             elif msg.type == controlmsg_pb2.CHANGE:
                                 self.__manual.change(msg.left, msg.right)
 
-                    print 'manual_thread: client disconnected'
+                    print 'receiver loop: client disconnected'
                     self.__manual.set(0, 0)
 
                 except BaseException as e:
                     traceback.print_exc()
-                    print 'manual_thread: client error: %s' % str(e)
+                    print 'receiver loop: client error: %s' % str(e)
 
         except BaseException as e:
             traceback.print_exc()
-            print 'manual_thread: server down: %s' % str(e)
+            print 'receiver loop: server down: %s' % str(e)
 
-        print 'manual thread stop'
+        print 'receiver loop: stop'
 
-    def __main_loop(self):
+    def __perform_loop(self):
         try:
             while self.__alive:
                 self.__chain.perform()
@@ -81,9 +89,9 @@ class App(object):
                 time.sleep(0.09)
         except BaseException as e:
             traceback.print_exc()
-            print 'main_loop exception: %s' % str(e)
+            print 'perform loop: exception: %s' % str(e)
 
-        print 'auto thread stop'
+        print 'auto thread: stop'
 
     def __configure_robo(self):
         self.__amber_client = amber_client.AmberClient(self.__amber_ip)
@@ -108,6 +116,9 @@ class App(object):
         # self.__chain.append(component.PID(self.__roboclaw))
         self.__chain.append(component.Driver(self.__roboclaw))
 
+    def reload(self):
+        self.__chain.reload()
+
     def manual(self):
         self.__configure_robo()
 
@@ -119,19 +130,24 @@ class App(object):
         self.__receiver_thread = threading.Thread(target=self.__receiver_loop)
         self.__receiver_thread.start()
 
-        runtime.add_shutdown_hook(self.terminate)
-        self.__main_loop()
+        runtime.add_shutdown_hook(self.terminate_manual)
+        self.__perform_loop()
 
     def auto(self):
         self.__configure_robo()
 
         self.__chain = component.Chain()
-        self.__chain.append(component.Randomize())
+        self.__randomize = component.Randomize()
+        self.__chain.append(self.__randomize)
         self.__configure_chain()
 
-        self.__main_loop()
+        self.__generator_thread = threading.Thread(target=self.__generator_loop)
+        self.__generator_thread.start()
 
-    def terminate(self):
+        runtime.add_shutdown_hook(self.terminate_auto)
+        self.__perform_loop()
+
+    def terminate_manual(self):
         print 'terminate app'
 
         self.__alive = False
@@ -141,3 +157,8 @@ class App(object):
             self.__server_socket.close()
         except BaseException:
             pass
+
+    def terminate_auto(self):
+        print 'terminate app'
+
+        self.__alive = False
