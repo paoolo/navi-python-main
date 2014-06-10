@@ -13,6 +13,7 @@ if __name__ == '__main__':
     print(proxy.get_version_info())
     print(proxy.get_sensor_state())
     print(proxy.get_sensor_specs())
+
     scan = proxy.get_single_scan()
     print(scan.get_points())
 

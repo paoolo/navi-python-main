@@ -29,3 +29,7 @@ SOFT_LIMIT = float(config.SOFT_LIMIT)
 
 def get_angle(left, right, robo_width):
     return math.degrees(math.atan((left - right) / float(robo_width)))
+
+
+def get_speed(left, right):
+    return (left + right) / 2.0

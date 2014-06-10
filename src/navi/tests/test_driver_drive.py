@@ -14,8 +14,6 @@ if __name__ == '__main__':
 
     proxy = roboclaw.RoboclawProxy(client, 0)
 
-    print '%d: %s' % (len(sys.argv), str(sys.argv))
-
     if len(sys.argv) == 3:
         left, right = int(sys.argv[1]), int(sys.argv[2])
         proxy.send_motors_command(left, right, left, right)

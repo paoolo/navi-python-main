@@ -1,3 +1,4 @@
+import os
 import socket
 import threading
 import time
@@ -16,6 +17,7 @@ __author__ = 'paoolo'
 
 ADDRESS = str(config.ADDRESS)
 PORT = int(config.PORT)
+BARE = '_APP_BARE' in os.environ
 
 
 class App(object):
@@ -112,7 +114,7 @@ class App(object):
         self.__hokuyo.subscribe(controller)
         self.__chain.append(controller)
 
-        self.__chain.append(component.Stop())
+        self.__chain.append(component.Limit())
         # self.__chain.append(component.PID(self.__roboclaw))
         self.__chain.append(component.Driver(self.__roboclaw))
 
@@ -122,9 +124,11 @@ class App(object):
     def manual(self):
         self.__configure_robo()
 
-        self.__chain = component.Chain()
+        self.__chain = component.Chain(is_logging_enabled=not BARE)
+
         self.__manual = component.Manual()
         self.__chain.append(self.__manual)
+
         self.__configure_chain()
 
         self.__receiver_thread = threading.Thread(target=self.__receiver_loop)
@@ -136,9 +140,11 @@ class App(object):
     def auto(self):
         self.__configure_robo()
 
-        self.__chain = component.Chain()
+        self.__chain = component.Chain(is_logging_enabled=not BARE)
+
         self.__randomize = component.Randomize()
         self.__chain.append(self.__randomize)
+
         self.__configure_chain()
 
         self.__generator_thread = threading.Thread(target=self.__generator_loop)

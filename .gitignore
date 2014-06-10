@@ -1,9 +1,17 @@
 .idea
+
 *.iml
 *.ipr
 *.iws
 *.pyc
+*.png
+*.py.prof
+
 MANIFEST
+
 build/
 dist/
 *.egg-info/
+
+__envi/
+__logs/

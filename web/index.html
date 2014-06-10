@@ -52,7 +52,7 @@
         }
 
         $(document).ready(function () {
-            var charts_names = ['manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'stop', 'pid', 'driver'];
+            var charts_names = ['manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'limit', 'pid', 'driver'];
             var charts = {};
 
             for (var index = 0; index < charts_names.length; index++) {
@@ -149,6 +149,7 @@
             </div>
             <div id="back_chart" class="chart"></div>
         </div>
+        <br class="clearBoth"/>
     </div>
     <div>
         <div class="inline twoCol">
@@ -165,11 +166,10 @@
             </div>
             <div id="controller_chart" class="chart"></div>
         </div>
-
         <div class="inline twoCol">
-            <h2>Stop</h2>
+            <h2>Limit</h2>
 
-            <div id="stop_panel" class="panel outer">
+            <div id="limit_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
                         <div id="stop_left" class="inline panelText">0.0</div>
@@ -178,26 +178,12 @@
                     </div>
                 </div>
             </div>
-            <div id="stop_chart" class="chart"></div>
+            <div id="limit_chart" class="chart"></div>
         </div>
         <br class="clearBoth"/>
     </div>
     <div>
-        <div class="inline twoCol">
-            <h2>PID</h2>
-
-            <div id="pid_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="pid_left" class="inline panelText">0.0</div>
-                        <div id="pid_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="pid_chart" class="chart"></div>
-        </div>
-        <div class="inline twoCol">
+        <div class="inline oneCol">
             <h2>Driver</h2>
 
             <div id="driver_panel" class="panel outer">
