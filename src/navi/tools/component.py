@@ -1,6 +1,5 @@
 import abc
 import os
-import random
 import time
 
 from navi.tools import logic, config, web
@@ -71,23 +70,14 @@ class Randomize(Component):
     def __init__(self):
         self.name = 'randomize'
 
-        self.__left, self.__right = 0.0, 0.0
+        self.__left, self.__right = 300.0, 300.0
         self.__randomizing_width, self.__randomizing_step = 0.0, 0.0
         self.__rotating_speed = 0.0
 
         self.reload()
 
     def randomize(self):
-        value = (int(random.random() * self.__randomizing_width - self.__randomizing_width / 2.0)
-                 * self.__randomizing_step)
-        weight = random.random()
-
-        if 0.35 < weight < 0.65:
-            self.__left += value
-            self.__right += value
-        else:
-            self.__left += value * weight
-            self.__right += value * (1.0 - weight)
+        pass
 
     def modify(self, left, right):
         return self.__left, self.__right
@@ -130,6 +120,8 @@ class Controller(Component):
     """
     Used to control speed.
     """
+
+    ALPHA = 0.6
 
     def __init__(self):
         self.name = 'controller'
@@ -181,11 +173,15 @@ class Controller(Component):
 
     @staticmethod
     def __calculate_new_left_right(left, right, max_speed, current_speed):
-        divide = max_speed / current_speed
-        return left * divide, right * divide
+        if current_speed > 0:
+            divide = max_speed / current_speed
+            return left * divide, right * divide
+        else:
+            print '>> %d, %d, %d, %d' % (left, right, max_speed, current_speed)
+            return left, right
 
     def __get_soft_limit(self, current_speed):
-        return 3.0 * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
+        return Controller.ALPHA * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
 
     def __get_max_speed(self, distance, soft_limit):
         return self.__max_speed / (soft_limit - self.__hard_limit) * float(distance) - \
@@ -202,6 +198,8 @@ class RodeoSwap(Component):
     """
     Used to change values to avoid something.
     """
+
+    ALPHA = 1.2
 
     def __init__(self):
         self.name = 'rodeo_swap'
@@ -234,6 +232,7 @@ class RodeoSwap(Component):
                 if min_distance < soft_limit:
                     if min_distance_angle < current_angle:
                         if left > 0:
+                            left = left if left < self.__rotating_speed else self.__rotating_speed
                             right = -left  # FIXME(paoolo)
                         else:
                             if right > 0:
@@ -242,6 +241,7 @@ class RodeoSwap(Component):
                                 right = _t
                     else:
                         if right > 0:
+                            right = right if right < self.__rotating_speed else self.__rotating_speed
                             left = -right  # FIXME(paoolo)
                         else:
                             if left > 0:
@@ -259,7 +259,7 @@ class RodeoSwap(Component):
         return left, right
 
     def __get_soft_limit(self, current_speed):
-        return 4.0 * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
+        return RodeoSwap.ALPHA * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
 
     def reload(self):
         self.__rotating_speed = float(config.RODEO_SWAP_ROTATING_SPEED)
@@ -340,12 +340,16 @@ class Driver(Component):
         self.__engine = engine
         self.__old_left, self.__old_right = 0, 0
         self.__change_diff_limit = 0.0
+        self.__time_stamp = time.time()
 
         self.reload()
 
     def modify(self, left, right):
+        time_stamp = time.time()
         if abs(self.__old_left - left) > self.__change_diff_limit \
-                or abs(self.__old_right - right) > self.__change_diff_limit:
+                or abs(self.__old_right - right) > self.__change_diff_limit \
+                or time_stamp - self.__time_stamp > 1.7:
+            self.__time_stamp = time.time()
             self.__old_left, self.__old_right = left, right
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 
