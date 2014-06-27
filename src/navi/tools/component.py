@@ -89,22 +89,6 @@ class Randomize(Component):
             self.__left += value * weight
             self.__right += value * (1.0 - weight)
 
-        left, right = self.__left, self.__right
-
-        if (left + right) / 2.0 < 0:
-            if left < 0 and right < 0:
-                left, right = 0.0, 0.0
-
-            elif left < 0 < right:
-                right = right if right < self.__rotating_speed else self.__rotating_speed
-                left = -right
-
-            elif left > 0 > right:
-                left = left if left < self.__rotating_speed else self.__rotating_speed
-                right = -left
-
-        self.__left, self.__right = left, right
-
     def modify(self, left, right):
         return self.__left, self.__right
 
