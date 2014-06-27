@@ -1,4 +1,3 @@
-setuptools
 amber-python-clients
 flask
 tornado

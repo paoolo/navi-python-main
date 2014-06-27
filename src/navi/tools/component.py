@@ -1,5 +1,6 @@
 import abc
 import random
+import time
 
 from navi.tools import logic, config, web
 
@@ -118,16 +119,21 @@ class RodeoSwap(Component):
     def __init__(self):
         self.name = 'rodeo_swap'
 
-        self.__scan = None
+        self.__scan, self.__time_stamp = None, None
         self.__rotating_speed, self.__robo_width, self.__hard_limit, self.__max_speed = 0.0, 0.0, 0.0, 0.0
 
         self.reload()
 
     def handle(self, scan):
         self.__scan = scan
+        self.__time_stamp = time.time()
 
     def modify(self, left, right):
-        scan = self.__scan
+        time_stamp = self.__time_stamp
+        if time_stamp is None or time.time() - time_stamp > 0.8:
+            scan = None
+        else:
+            scan = self.__scan
 
         if scan is not None:
             current_angle = logic.get_angle(left, right, self.__robo_width)
@@ -341,7 +347,7 @@ class Driver(Component):
 
     def modify(self, left, right):
         if abs(self.__old_left - left) > self.__change_diff_limit \
-            or abs(self.__old_right - right) > self.__change_diff_limit:
+                or abs(self.__old_right - right) > self.__change_diff_limit:
             self.__old_left, self.__old_right = left, right
             self.__engine.send_motors_command(int(left), int(right), int(left), int(right))
 

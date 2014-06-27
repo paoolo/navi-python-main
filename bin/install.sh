@@ -11,4 +11,9 @@ then
 fi
 
 . ${__dir}/__envi/bin/activate
+
+set -x
+
+${__dir}/__envi/bin/pip install --upgrade distribute
 ${__dir}/__envi/bin/pip install --upgrade -r ${__dir}/requirements.txt
+${__dir}/protoc.sh
