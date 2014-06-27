@@ -7,7 +7,7 @@ if [ -d ${__dir}/__envi ]
 then
     . ${__dir}/__envi/bin/activate
     export PYTHONPATH=${__dir}/src
-    ${__dir}/__envi/bin/python -u -m yep -v ${PYTHONPATH}/navi/auto.py $@
+    # ${__dir}/__envi/bin/python -u -m yep -v ${PYTHONPATH}/navi/auto.py $@
 else
     echo "Application not installed. Please run \`${__dir}/bin/install.sh\`"
 fi

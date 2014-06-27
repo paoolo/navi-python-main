@@ -1,6 +1,6 @@
+setuptools
 amber-python-clients
 flask
 tornado
-yep
 pycallgraph
 psutil
