@@ -114,8 +114,9 @@ class App(object):
         self.__hokuyo.subscribe(controller)
         self.__chain.append(controller)
 
+        self.__chain.append(component.LowPassFilter())
+
         self.__chain.append(component.Limit())
-        # self.__chain.append(component.PID(self.__roboclaw))
         self.__chain.append(component.Driver(self.__roboclaw))
 
     def reload(self):

@@ -52,7 +52,7 @@
         }
 
         $(document).ready(function () {
-            var charts_names = ['manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'limit', 'pid', 'driver'];
+            var charts_names = ['current_angle_speed', 'min_distance_soft_limit', 'manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'limit', 'pid', 'driver'];
             var charts = {};
 
             for (var index = 0; index < charts_names.length; index++) {
@@ -68,6 +68,12 @@
                 fill_chart(charts[data.target], data);
             }
         });
+
+
+
+
+
+
     </script>
 </head>
 <body>
@@ -89,6 +95,38 @@
 
 <div class="container">
 
+    <div>
+        <div class="inline oneCol">
+            <h2>Current angle & speed</h2>
+
+            <div id="current_angle_speed_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="current_angle_speed_left" class="inline panelText">0.0</div>
+                        <div id="current_angle_speed_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
+            </div>
+            <div id="current_angle_speed_chart" class="chart"></div>
+        </div>
+    </div>
+    <div>
+        <div class="inline oneCol">
+            <h2>Min distance & soft limit</h2>
+
+            <div id="min_distance_soft_limit_left_panel" class="panel outer">
+                <div class="center-helper">
+                    <div class="inner">
+                        <div id="min_distance_soft_limit_left" class="inline panelText">0.0</div>
+                        <div id="min_distance_soft_limit_right" class="inline panelText">0.0</div>
+                        <br class="clearBoth"/>
+                    </div>
+                </div>
+            </div>
+            <div id="min_distance_soft_limit_chart" class="chart"></div>
+        </div>
+    </div>
     <div>
         <div class="inline twoCol">
             <h2>Manual</h2>
@@ -152,7 +190,7 @@
         <br class="clearBoth"/>
     </div>
     <div>
-        <div class="inline twoCol">
+        <div class="inline oneCol">
             <h2>Controller</h2>
 
             <div id="controller_panel" class="panel outer">
@@ -166,24 +204,23 @@
             </div>
             <div id="controller_chart" class="chart"></div>
         </div>
+    </div>
+    <div>
         <div class="inline twoCol">
             <h2>Limit</h2>
 
             <div id="limit_panel" class="panel outer">
                 <div class="center-helper">
                     <div class="inner">
-                        <div id="stop_left" class="inline panelText">0.0</div>
-                        <div id="stop_right" class="inline panelText">0.0</div>
+                        <div id="limit_left" class="inline panelText">0.0</div>
+                        <div id="limit_right" class="inline panelText">0.0</div>
                         <br class="clearBoth"/>
                     </div>
                 </div>
             </div>
             <div id="limit_chart" class="chart"></div>
         </div>
-        <br class="clearBoth"/>
-    </div>
-    <div>
-        <div class="inline oneCol">
+        <div class="inline twoCol">
             <h2>Driver</h2>
 
             <div id="driver_panel" class="panel outer">

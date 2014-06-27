@@ -1,4 +1,5 @@
 import abc
+import os
 import random
 import time
 
@@ -6,6 +7,8 @@ from navi.tools import logic, config, web
 
 
 __author__ = 'paoolo'
+
+BARE = '_APP_BARE' in os.environ
 
 
 class Chain(list):
@@ -111,77 +114,6 @@ class Randomize(Component):
         self.__rotating_speed = float(config.BACK_ROTATING_SPEED)
 
 
-class RodeoSwap(Component):
-    """
-    Used to change values to avoid something.
-    """
-
-    def __init__(self):
-        self.name = 'rodeo_swap'
-
-        self.__scan, self.__time_stamp = None, None
-        self.__rotating_speed, self.__robo_width, self.__hard_limit, self.__max_speed = 0.0, 0.0, 0.0, 0.0
-
-        self.reload()
-
-    def handle(self, scan):
-        self.__scan = scan
-        self.__time_stamp = time.time()
-
-    def modify(self, left, right):
-        time_stamp = self.__time_stamp
-        if time_stamp is None or time.time() - time_stamp > 0.8:
-            scan = None
-        else:
-            scan = self.__scan
-
-        if scan is not None:
-            current_angle = logic.get_angle(left, right, self.__robo_width)
-            current_speed = logic.get_speed(left, right)
-            min_distance, min_distance_angle = logic.get_min_distance(scan, current_angle)
-
-            if min_distance is not None:
-
-                soft_limit = self.__get_soft_limit(current_speed)
-                if min_distance < soft_limit:
-                    if min_distance_angle < current_angle:
-                        if left > 0:
-                            left = left if left < self.__rotating_speed else self.__rotating_speed
-                            right = -left  # FIXME(paoolo)
-                        else:
-                            if right > 0:
-                                _t = left
-                                left = right
-                                right = _t
-                    else:
-                        if right > 0:
-                            right = right if right < self.__rotating_speed else self.__rotating_speed
-                            left = -right  # FIXME(paoolo)
-                        else:
-                            if left > 0:
-                                _t = right
-                                right = left
-                                left = _t
-
-                elif min_distance < soft_limit * 0.4:
-                    left = -left
-                    right = -right
-        else:
-            print 'no scan!'
-            left, right = 0.0, 0.0
-
-        return left, right
-
-    def __get_soft_limit(self, current_speed):
-        return self.__hard_limit * (current_speed / self.__max_speed) + self.__hard_limit
-
-    def reload(self):
-        self.__rotating_speed = float(config.RODEO_SWAP_ROTATING_SPEED)
-        self.__robo_width = float(config.ROBO_WIDTH)
-        self.__hard_limit = float(config.HARD_LIMIT)
-        self.__max_speed = float(config.MAX_SPEED)
-
-
 class LowPassFilter(Component):
     """
     Used to low pass.
@@ -208,6 +140,149 @@ class LowPassFilter(Component):
 
     def reload(self):
         self.__low_pass_alpha = float(config.LOW_PASS_ALPHA)
+
+
+class Controller(Component):
+    """
+    Used to control speed.
+    """
+
+    def __init__(self):
+        self.name = 'controller'
+
+        self.__scan = None
+        self.__max_speed, self.__robo_width = 0.0, 0.0
+        self.__hard_limit, self.__soft_limit = 0.0, 0.0
+
+        self.reload()
+
+    def handle(self, scan):
+        self.__scan = scan
+
+    def modify(self, left, right):
+        if left > 0 or right > 0:
+            current_angle = logic.get_angle(left, right, self.__robo_width)
+            current_speed = logic.get_speed(left, right)
+
+            if not BARE:
+                web.emit({'target': 'current_angle_speed',
+                          'data': 'current_angle_speed(%d, %d)' % (current_angle, current_speed),
+                          'x': int(current_angle), 'y': int(current_speed)})
+
+            scan = self.__scan
+
+            if scan is not None:
+                min_distance, _ = logic.get_min_distance(scan, current_angle)
+                if min_distance is not None:
+
+                    soft_limit = self.__get_soft_limit(current_speed)
+
+                    if not BARE:
+                        web.emit({'target': 'min_distance_soft_limit',
+                                  'data': 'min_distance_soft_limit(%d, %d)' % (min_distance, soft_limit),
+                                  'x': int(min_distance), 'y': int(soft_limit)})
+
+                    if self.__hard_limit < min_distance < soft_limit:
+                        max_speed = self.__get_max_speed(min_distance, soft_limit)
+                        if current_speed > max_speed:
+                            left, right = self.__calculate_new_left_right(left, right, max_speed, current_speed)
+
+                    elif min_distance <= self.__hard_limit:
+                        left, right = 0, 0
+
+            else:
+                left, right = 0.0, 0.0
+
+        return left, right
+
+    @staticmethod
+    def __calculate_new_left_right(left, right, max_speed, current_speed):
+        divide = max_speed / current_speed
+        return left * divide, right * divide
+
+    def __get_soft_limit(self, current_speed):
+        return 3.0 * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
+
+    def __get_max_speed(self, distance, soft_limit):
+        return self.__max_speed / (soft_limit - self.__hard_limit) * float(distance) - \
+               (self.__max_speed * self.__hard_limit) / (soft_limit - self.__hard_limit)
+
+    def reload(self):
+        self.__max_speed = float(config.MAX_SPEED)
+        self.__robo_width = float(config.ROBO_WIDTH)
+        self.__hard_limit = float(config.HARD_LIMIT)
+        self.__soft_limit = float(config.SOFT_LIMIT)
+
+
+class RodeoSwap(Component):
+    """
+    Used to change values to avoid something.
+    """
+
+    def __init__(self):
+        self.name = 'rodeo_swap'
+
+        self.__scan, self.__time_stamp = None, None
+        self.__rotating_speed, self.__robo_width, self.__max_speed = 0.0, 0.0, 0.0
+        self.__hard_limit, self.__soft_limit = 0.0, 0.0
+
+        self.reload()
+
+    def handle(self, scan):
+        self.__scan = scan
+        self.__time_stamp = time.time()
+
+    def modify(self, left, right):
+        time_stamp = self.__time_stamp
+        if time_stamp is None or time.time() - time_stamp > 0.8:
+            scan = None
+        else:
+            scan = self.__scan
+
+        if scan is not None:
+            current_angle = logic.get_angle(left, right, self.__robo_width)
+            current_speed = logic.get_speed(left, right)
+            min_distance, min_distance_angle = logic.get_min_distance(scan, current_angle)
+
+            if min_distance is not None:
+
+                soft_limit = self.__get_soft_limit(current_speed)
+                if min_distance < soft_limit:
+                    if min_distance_angle < current_angle:
+                        if left > 0:
+                            right = -left  # FIXME(paoolo)
+                        else:
+                            if right > 0:
+                                _t = left
+                                left = right
+                                right = _t
+                    else:
+                        if right > 0:
+                            left = -right  # FIXME(paoolo)
+                        else:
+                            if left > 0:
+                                _t = right
+                                right = left
+                                left = _t
+
+                elif min_distance < soft_limit * 0.4:
+                    left = -left
+                    right = -right
+        else:
+            print 'no scan!'
+            left, right = 0.0, 0.0
+
+        return left, right
+
+    def __get_soft_limit(self, current_speed):
+        return 4.0 * self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit + 50.0
+
+    def reload(self):
+        self.__rotating_speed = float(config.RODEO_SWAP_ROTATING_SPEED)
+        self.__robo_width = float(config.ROBO_WIDTH)
+        self.__hard_limit = float(config.HARD_LIMIT)
+        self.__soft_limit = float(config.SOFT_LIMIT)
+        self.__max_speed = float(config.MAX_SPEED)
 
 
 class Back(Component):
@@ -243,67 +318,6 @@ class Back(Component):
     def reload(self):
         self.__rotating_speed = float(config.BACK_ROTATING_SPEED)
         self.__max_speed = -float(config.BACK_MAX_SPEED)
-
-
-class Controller(Component):
-    """
-    Used to control speed.
-    """
-
-    def __init__(self):
-        self.name = 'controller'
-
-        self.__scan = None
-        self.__max_speed, self.__robo_width = 0.0, 0.0
-        self.__hard_limit, self.__soft_limit = 0.0, 0.0
-
-        self.reload()
-
-    def handle(self, scan):
-        self.__scan = scan
-
-    def modify(self, left, right):
-        if left > 0 or right > 0:
-            current_angle = logic.get_angle(left, right, self.__robo_width)
-            current_speed = logic.get_speed(left, right)
-            scan = self.__scan
-
-            if scan is not None:
-                min_distance, _ = logic.get_min_distance(scan, current_angle)
-                if min_distance is not None:
-
-                    soft_limit = self.__get_soft_limit(current_speed)
-                    if self.__hard_limit < min_distance < soft_limit:
-
-                        max_speed = self.__get_max_speed(min_distance, soft_limit)
-                        if current_speed > max_speed:
-                            left, right = self.__calculate_new_left_right(left, right, max_speed, current_speed)
-
-                    elif min_distance <= self.__hard_limit:
-                        left, right = 0, 0
-
-            else:
-                left, right = 0.0, 0.0
-
-        return left, right
-
-    @staticmethod
-    def __calculate_new_left_right(left, right, max_speed, current_speed):
-        divide = max_speed / current_speed
-        return left * divide, right * divide
-
-    def __get_soft_limit(self, current_speed):
-        return self.__soft_limit * (current_speed / self.__max_speed) + self.__hard_limit
-
-    def __get_max_speed(self, distance, soft_limit):
-        return self.__max_speed / (soft_limit - self.__hard_limit) * float(distance) - \
-               (self.__max_speed * self.__hard_limit) / (soft_limit - self.__hard_limit)
-
-    def reload(self):
-        self.__max_speed = float(config.MAX_SPEED)
-        self.__robo_width = float(config.ROBO_WIDTH)
-        self.__hard_limit = float(config.HARD_LIMIT)
-        self.__soft_limit = float(config.SOFT_LIMIT)
 
 
 class Limit(Component):
