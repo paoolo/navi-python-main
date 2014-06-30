@@ -133,9 +133,9 @@ class App(object):
         self.__configure_chain()
 
         self.__receiver_thread = threading.Thread(target=self.__receiver_loop)
+        runtime.add_shutdown_hook(self.terminate_manual)
         self.__receiver_thread.start()
 
-        runtime.add_shutdown_hook(self.terminate_manual)
         self.__perform_loop()
 
     def auto(self):
@@ -149,9 +149,9 @@ class App(object):
         self.__configure_chain()
 
         self.__generator_thread = threading.Thread(target=self.__generator_loop)
+        runtime.add_shutdown_hook(self.terminate_auto)
         self.__generator_thread.start()
 
-        runtime.add_shutdown_hook(self.terminate_auto)
         self.__perform_loop()
 
     def terminate_manual(self):
