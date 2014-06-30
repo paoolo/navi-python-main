@@ -13,7 +13,7 @@ def get_min_distance(scan, current_angle):
     min_distance = None
     min_distance_angle = None
 
-    for angle, distance in scan.items():
+    for angle, distance in scan:
         if distance > SCANNER_DIST_OFFSET \
             and current_angle - ANGLE_RANGE < angle < current_angle + ANGLE_RANGE:
             if min_distance is None or distance < min_distance:
