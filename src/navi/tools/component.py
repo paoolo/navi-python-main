@@ -2,24 +2,25 @@ import abc
 import os
 import time
 
-from navi.tools import logic, config, web
+from navi.tools import logic, config
 
 
 __author__ = 'paoolo'
 
 BARE = '_APP_BARE' in os.environ
+if not BARE:
+    from navi.tools import web
 
 
 class Chain(list):
-    def __init__(self, seq=(), is_logging_enabled=True):
+    def __init__(self, seq=()):
         super(Chain, self).__init__(seq)
-        self.__is_logging_enabled = is_logging_enabled
 
     def perform(self):
         left, right = 0.0, 0.0
         for component in self:
             left, right = component.modify(left, right)
-            if self.__is_logging_enabled:
+            if not BARE:
                 web.emit({'target': component.name,
                           'data': '%s(%d, %d)' % (component.name, left, right),
                           'x': int(left), 'y': int(right)})

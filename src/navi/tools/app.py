@@ -8,7 +8,6 @@ import traceback
 from amber.common import amber_client, runtime
 from amber.hokuyo import hokuyo
 from amber.roboclaw import roboclaw
-
 from navi.proto import controlmsg_pb2
 from navi.tools import component, config
 
@@ -125,7 +124,7 @@ class App(object):
     def manual(self):
         self.__configure_robo()
 
-        self.__chain = component.Chain(is_logging_enabled=not BARE)
+        self.__chain = component.Chain()
 
         self.__manual = component.Manual()
         self.__chain.append(self.__manual)
@@ -141,7 +140,7 @@ class App(object):
     def auto(self):
         self.__configure_robo()
 
-        self.__chain = component.Chain(is_logging_enabled=not BARE)
+        self.__chain = component.Chain()
 
         self.__randomize = component.Randomize()
         self.__chain.append(self.__randomize)

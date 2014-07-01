@@ -5,6 +5,7 @@
 *.iws
 *.pyc
 *.png
+*.svg
 *.py.prof
 
 MANIFEST
