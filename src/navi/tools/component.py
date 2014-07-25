@@ -323,7 +323,7 @@ class Limit(Component):
 
     def __check(self, value):
         return self.__max_speed if value > self.__max_speed \
-            else -self.__max_speed if value < -self.__max_speed \
+            else 0 if value < 0 \
             else value
 
     def reload(self):
