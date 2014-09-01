@@ -36,7 +36,6 @@ class Main(object):
             while self._alive:
                 self._chain.perform()
                 time.sleep(0.11)
-                print 'main loop: still doing'
 
         except BaseException as e:
             traceback.print_exc()

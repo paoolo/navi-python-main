@@ -40,14 +40,16 @@ def index():
 @_app_flask.route('/settings', methods=['GET', 'POST'])
 def settings():
     if 'save_button' in request.form:
-        chain = _global['chain'].to_dict()
+        chain = _global['chain']
+        chain = dict(zip(map(lambda e: e.key, chain), chain))
+
         values = dict(request.form.items())
         del values['save_button']
-        print values
-        for key, value in values.items():
-            component_name, parameter = str(key).split('_', 1)
-            component = chain[component_name]
-            setattr(component, parameter, value)
+
+        for key, parameter_value in values.items():
+            component_key, parameter_name = str(key).split('_', 1)
+            component = chain[component_key]
+            setattr(component, parameter_name, parameter_value)
 
     kwargs = {'chain': _global['chain']} if 'chain' in _global else {}
     return render_template('settings.html', **kwargs)

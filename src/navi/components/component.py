@@ -5,7 +5,7 @@ class Component(object):
     def __init__(self):
         self._name = self.__class__.__name__
         self._index = 0
-        self._enable = True
+        self._enable = False
 
     def modify(self, left, right):
         return left, right

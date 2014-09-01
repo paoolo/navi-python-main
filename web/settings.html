@@ -47,13 +47,13 @@
                 <legend>{{ component.name }}</legend>
                 <div>
                     <div class="form-group">
-                        <label class="col-md-4 control-label" for="{{ component_key }}_enable">
+                        <label class="col-md-4 control-label" for="{{ component.key }}_enable">
                             enable
                         </label>
 
                         <div class="col-md-6">
-                            <select id="{{ component_key }}_enable"
-                                    name="{{ component_key }}_enable"
+                            <select id="{{ component.key }}_enable"
+                                    name="{{ component.key }}_enable"
                                     class="form-control input-md">
                                 {% if component['enable'] %}
                                 <option>true</option>

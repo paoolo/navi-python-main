@@ -31,7 +31,6 @@ class Random(Component):
         while self._alive:
             self._randomize()
             time.sleep(3.25)
-            print 'generator loop: still doing'
 
         print 'generator loop: stop'
 
