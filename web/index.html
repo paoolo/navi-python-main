@@ -10,71 +10,10 @@
 
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
     <script type="text/javascript" src="/static/canvasjs.min.js"></script>
     <script type="text/javascript" src="/static/ejs_production.js"></script>
     <script type="text/javascript" src="/static/view.js"></script>
-
-    <script type="text/javascript">
-        function create_chart(name) {
-            var stamp = 0;
-
-            var left = [];
-            var right = [];
-
-            var chart = new CanvasJS.Chart(name + '_chart', {
-                data: [
-                    { type: 'line', dataPoints: left },
-                    { type: 'line', dataPoints: right }
-                ]
-            });
-
-            return { 'name': name, 'stamp': stamp, 'left': left, 'right': right, 'chart': chart };
-        }
-
-        function fill_chart(chart, data) {
-            chart['stamp'] = chart['stamp'] + 1;
-
-            chart['left'].push({x: chart['stamp'], y: data.x});
-            chart['right'].push({x: chart['stamp'], y: data.y});
-
-            if (chart['left'].length >= 50) {
-                chart['left'].shift();
-            }
-            if (chart['right'].length >= 50) {
-                chart['right'].shift();
-            }
-
-            chart['chart'].render();
-
-            $('#' + chart['name'] + '_left').html(data.x);
-            $('#' + chart['name'] + '_right').html(data.y);
-        }
-
-        $(document).ready(function () {
-            var charts_names = ['current_angle_speed', 'min_distance_soft_limit', 'manual', 'randomize', 'rodeo_swap', 'back', 'controller', 'limit', 'pid', 'driver'];
-            var charts = {};
-
-            for (var index = 0; index < charts_names.length; index++) {
-                var name = charts_names[index];
-                charts[name] = create_chart(name);
-            }
-
-            var ws = new WebSocket('ws://' + document.domain + ':8888/');
-
-            ws.onmessage = function (event) {
-                var data = $.parseJSON(event.data);
-                $('#log').prepend(data.target + ' => ' + data.data + '<br/>');
-                fill_chart(charts[data.target], data);
-            }
-        });
-
-
-
-
-
-
-    </script>
+    <script type="text/javascript" src="/static/index.js"></script>
 </head>
 <body>
 
@@ -94,158 +33,28 @@
 </div>
 
 <div class="container">
+    <h1>Dashboard</h1>
 
-    <div>
-        <div class="inline oneCol">
-            <h2>Current angle & speed</h2>
+    {% for component in chain %}
+    <div class="inline oneCol">
+        <h2>{{ component.name }}</h2>
 
-            <div id="current_angle_speed_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="current_angle_speed_left" class="inline panelText">0.0</div>
-                        <div id="current_angle_speed_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
+        <p>
+            <button class="btn btn-success" onclick="create_chart('{{ component.key }}')">Show</button>
+        </p>
+
+        <div id="{{ component.key }}_panel" class="panel outer" style="display: none; visibility: hidden;">
+            <div class="center-helper">
+                <div class="inner">
+                    <div id="{{ component.key }}_left" class="inline panelText">0.0</div>
+                    <div id="{{ component.key }}_right" class="inline panelText">0.0</div>
+                    <br class="clearBoth"/>
                 </div>
             </div>
-            <div id="current_angle_speed_chart" class="chart"></div>
         </div>
+        <div id="{{ component.key }}_chart" class="chart" style="display: none; visibility: hidden;"></div>
     </div>
-    <div>
-        <div class="inline oneCol">
-            <h2>Min distance & soft limit</h2>
-
-            <div id="min_distance_soft_limit_left_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="min_distance_soft_limit_left" class="inline panelText">0.0</div>
-                        <div id="min_distance_soft_limit_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="min_distance_soft_limit_chart" class="chart"></div>
-        </div>
-    </div>
-    <div>
-        <div class="inline twoCol">
-            <h2>Manual</h2>
-
-            <div id="manual_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="manual_left" class="inline panelText">0.0</div>
-                        <div id="manual_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="manual_chart" class="chart"></div>
-        </div>
-        <div class="inline twoCol">
-            <h2>Randomize</h2>
-
-            <div id="randomize_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="randomize_left" class="inline panelText">0.0</div>
-                        <div id="randomize_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="randomize_chart" class="chart"></div>
-        </div>
-        <br class="clearBoth"/>
-    </div>
-    <div>
-        <div class="inline twoCol">
-            <h2>Rodeo-Swap</h2>
-
-            <div id="rodeo_swap_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="rodeo_swap_left" class="inline panelText">0.0</div>
-                        <div id="rodeo_swap_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="rodeo_swap_chart" class="chart"></div>
-        </div>
-        <div class="inline twoCol">
-            <h2>Back</h2>
-
-            <div id="back_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="back_left" class="inline panelText">0.0</div>
-                        <div id="back_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="back_chart" class="chart"></div>
-        </div>
-        <br class="clearBoth"/>
-    </div>
-    <div>
-        <div class="inline oneCol">
-            <h2>Controller</h2>
-
-            <div id="controller_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="controller_left" class="inline panelText">0.0</div>
-                        <div id="controller_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="controller_chart" class="chart"></div>
-        </div>
-    </div>
-    <div>
-        <div class="inline twoCol">
-            <h2>Limit</h2>
-
-            <div id="limit_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="limit_left" class="inline panelText">0.0</div>
-                        <div id="limit_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="limit_chart" class="chart"></div>
-        </div>
-        <div class="inline twoCol">
-            <h2>Driver</h2>
-
-            <div id="driver_panel" class="panel outer">
-                <div class="center-helper">
-                    <div class="inner">
-                        <div id="driver_left" class="inline panelText">0.0</div>
-                        <div id="driver_right" class="inline panelText">0.0</div>
-                        <br class="clearBoth"/>
-                    </div>
-                </div>
-            </div>
-            <div id="driver_chart" class="chart"></div>
-        </div>
-        <br class="clearBoth"/>
-    </div>
-    <div>
-        <div class="inline oneCol">
-            <h2>Logs</h2>
-
-            <div class="panel">
-                <div id="log" class="scroll"></div>
-            </div>
-        </div>
-        <br class="clearBoth"/>
-    </div>
+    {% endfor %}
 </div>
 <!-- /.container -->
 
