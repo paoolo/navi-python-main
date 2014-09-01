@@ -77,6 +77,7 @@ def run_flask(chain):
 
 
 def stop_flask():
+    print 'try to stop flask...'
     req = urllib2.Request('http://localhost:5000/shutdown', '')
     response = urllib2.urlopen(req)
     response.read()

@@ -37,9 +37,10 @@ class Manual(Component):
 
         try:
             while self._alive:
+                print 'receiver loop: wait for client'
                 (client_socket, address) = self.__server_socket.accept()
-                print 'receiver loop: client connected'
 
+                print 'receiver loop: client connected'
                 try:
                     while self._alive:
                         data_to_read = client_socket.recv(2)
@@ -84,7 +85,7 @@ class Manual(Component):
         self._alive = False
         # noinspection PyBroadException
         try:
-            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', PORT))
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(('127.0.0.1', self._port))
             self.__server_socket.close()
         except BaseException:
             pass

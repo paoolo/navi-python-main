@@ -27,6 +27,7 @@ def run_tornado(chain):
 
 
 def stop_tornado():
+    print 'try to stop tornado...'
     ioloop.IOLoop.instance().stop()
 
 
