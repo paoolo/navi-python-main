@@ -36,6 +36,4 @@ class Component(object):
 
     def properties(self):
         class_items = self.__class__.__dict__.iteritems()
-        return dict((k, getattr(self, k))
-                    for k, v in class_items
-                    if isinstance(v, property))
+        return dict((k, getattr(self, k)) for k, v in class_items if isinstance(v, property))

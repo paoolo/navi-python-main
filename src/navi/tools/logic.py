@@ -1,7 +1,5 @@
 import math
 
-__author__ = 'paoolo'
-
 
 def get_angle(left, right, robo_width):
     return math.degrees(math.atan((left - right) / float(robo_width)))

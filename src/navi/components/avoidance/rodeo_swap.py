@@ -1,5 +1,7 @@
 import time
 
+from amber.tests.hokuyo_example import HokuyoListener
+
 from navi.tools import logic
 from navi.components.component import Component
 
@@ -7,18 +9,16 @@ from navi.components.component import Component
 __author__ = 'paoolo'
 
 
-class RodeoSwap(Component):
+class RodeoSwap(Component, HokuyoListener):
     """
     Used to change values to avoid something.
     """
 
-    def __init__(self, hokuyo):
+    def __init__(self):
         super(RodeoSwap, self).__init__()
-        hokuyo.subscribe(self)
 
         self._scan = None
         self._time_stamp = None
-
         self._max_rotating_speed = 300.0
         self._robo_width = 450.0
         self._max_speed = 700.0

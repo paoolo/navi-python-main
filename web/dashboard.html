@@ -24,8 +24,8 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="/">Home</a></li>
-                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/">Home</a></li>
+                <li class="active"><a href="/dashboard">Dashboard</a></li>
                 <li><a href="/settings">Settings</a></li>
             </ul>
         </div>
@@ -34,44 +34,28 @@
 </div>
 
 <div class="container">
-    <h1>Home</h1>
+    <h1>Dashboard</h1>
 
-    <legend>Connect</legend>
-    <form class="form-horizontal" method="post" action="/amber_connect">
-        <fieldset>
-            <div class="form-group">
-                <label class="col-md-4 control-label" for="address">Amber address</label>
+    {% for component in chain %}
+    <div class="inline oneCol">
+        <h2>{{ component.name }}</h2>
 
-                <div class="col-md-6">
-                    <input id="address" name="address" type="text" placeholder=""
-                           class="form-control input-md" value="127.0.0.1">
+        <p>
+            <button class="btn btn-success" onclick="create_chart('{{ component.key }}')">Show</button>
+        </p>
+
+        <div id="{{ component.key }}_panel" class="panel outer" style="display: none; visibility: hidden;">
+            <div class="center-helper">
+                <div class="inner">
+                    <div id="{{ component.key }}_left" class="inline panelText">0.0</div>
+                    <div id="{{ component.key }}_right" class="inline panelText">0.0</div>
+                    <br class="clearBoth"/>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label class="col-md-4 control-label"></label>
-
-                <div class="col-md-8">
-                    <button class="btn btn-success">Connect to Amber</button>
-                </div>
-            </div>
-        </fieldset>
-    </form>
-
-    <legend>Disconnect</legend>
-    <form class="form-horizontal" method="post" action="/amber_disconnect">
-        <fieldset>
-
-            <div class="form-group">
-                <label class="col-md-4 control-label"></label>
-
-                <div class="col-md-8">
-                    <button class="btn btn-success">Disconnect from Amber</button>
-                </div>
-            </div>
-        </fieldset>
-    </form>
-
+        </div>
+        <div id="{{ component.key }}_chart" class="chart" style="display: none; visibility: hidden;"></div>
+    </div>
+    {% endfor %}
 </div>
 <!-- /.container -->
 

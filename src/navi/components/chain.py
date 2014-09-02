@@ -17,10 +17,6 @@ class Chain(list):
                            'data': '%s(%d, %d)' % (component.key, left, right),
                            'x': int(left), 'y': int(right)})
 
-    def reload(self):
-        for component in self:
-            component.reload()
-
     def append(self, p_object):
         p_object.index = self._index
         self._index += 1

@@ -1,3 +1,15 @@
+function start_app(_address) {
+    $.post('/amber_connect', { address: _address }).done(function(data) {
+        alert(data);
+    });
+}
+
+function stop_app() {
+    $.post('/amber_disconnect').done(function(data) {
+        alert(data);
+    });
+}
+
 jQuery.fn.visible = function() {
     this.css('display', '')
     this.css('visibility', '');

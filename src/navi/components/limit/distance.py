@@ -1,17 +1,17 @@
+from amber.tests.hokuyo_example import HokuyoListener
 from navi.tools import logic
 from navi.components.component import Component
 
 __author__ = 'paoolo'
 
 
-class Distance(Component):
+class Distance(Component, HokuyoListener):
     """
     Used to control speed.
     """
 
-    def __init__(self, hokuyo):
+    def __init__(self):
         super(Distance, self).__init__()
-        hokuyo.subscribe(self)
 
         self._scan = None
 

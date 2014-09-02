@@ -19,7 +19,6 @@ class Random(Component):
 
         self._randomizing_width = 0.0
         self._randomizing_step = 0.0
-        self._rotating_speed = 0.0
 
         self._generator_thread = threading.Thread(target=self._generator_loop)
         runtime.add_shutdown_hook(self._terminate)
@@ -69,11 +68,3 @@ class Random(Component):
     @randomizing_step.setter
     def randomizing_step(self, val):
         self._randomizing_step = float(val)
-
-    @property
-    def rotating_speed(self):
-        return self._rotating_speed
-
-    @rotating_speed.setter
-    def rotating_speed(self, val):
-        self._rotating_speed = float(val)

@@ -18,7 +18,7 @@ class WebSocket(websocket.WebSocketHandler):
         _sockets.remove(self)
 
 
-def run_tornado(chain):
+def run_tornado(_):
     application = web.Application([
         (r"/", WebSocket),
     ])
