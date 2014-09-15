@@ -5,7 +5,7 @@ __author__ = 'paoolo'
 
 class FollowTrack(Component):
     def __init__(self, roboclaw):
-        super(FollowTrack, self).__init__()
+        super(FollowTrack, self).__init__(enable=False)
 
         self._val_p = 0.0
         self._val_i = 0.0

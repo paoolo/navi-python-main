@@ -17,9 +17,10 @@ class Manual(Component):
     """
 
     def __init__(self):
-        super(Manual, self).__init__()
+        super(Manual, self).__init__(enable=False)
 
         self._alive = True
+
         self._left = 0
         self._right = 0
 

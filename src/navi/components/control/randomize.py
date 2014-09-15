@@ -11,9 +11,10 @@ __author__ = 'paoolo'
 
 class Random(Component):
     def __init__(self):
-        super(Random, self).__init__()
+        super(Random, self).__init__(enable=False)
 
         self._alive = True
+
         self._left = 0.0
         self._right = 0.0
 

@@ -9,10 +9,10 @@ class Const(Component):
     """
 
     def __init__(self):
-        super(Const, self).__init__()
+        super(Const, self).__init__(enable=False)
 
-        self._left = 300.0
-        self._right = 300.0
+        self._left = 200.0
+        self._right = 200.0
 
     def modify(self, left, right):
         return self._left, self._right

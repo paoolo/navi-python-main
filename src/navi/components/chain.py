@@ -1,4 +1,7 @@
+import traceback
+
 from navi.web import push
+
 
 __author__ = 'paoolo'
 
@@ -13,9 +16,12 @@ class Chain(list):
         for component in self:
             if component.enable:
                 left, right = component.modify(left, right)
-                push.emit({'target': component.key,
-                           'data': '%s(%d, %d)' % (component.key, left, right),
-                           'x': int(left), 'y': int(right)})
+                try:
+                    push.emit({'target': component.key,
+                               'data': '%s(%d, %d)' % (component.key, left, right),
+                               'x': int(left), 'y': int(right)})
+                except:
+                    traceback.print_exc()
 
     def append(self, p_object):
         p_object.index = self._index

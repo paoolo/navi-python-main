@@ -14,6 +14,7 @@ from navi.components.limit.distance import Distance
 from navi.components.limit.forward import Forward
 from navi.components.limit.reverse import Reverse
 from navi.components.other.low_pass_filter import LowPassFilter
+from navi.components.tracking.drive_to_point import DriveToPoint
 
 
 _global = {}
@@ -30,6 +31,7 @@ def connect_amber(address):
 
         roboclaw_proxy = RoboclawProxy(amber_client, 0)
         _global['driver'].roboclaw = roboclaw_proxy
+        _global['drive_to_point'].roboclaw = roboclaw_proxy
 
 
 def disconnect_amber():
@@ -39,6 +41,7 @@ def disconnect_amber():
 
     if 'driver' in _global:
         _global['driver'].roboclaw = None
+        _global['drive_to_point'].roboclaw = None
 
 
 def run_main(registry):
@@ -51,6 +54,10 @@ def run_main(registry):
     chain.append(Const())
     chain.append(Random())
     chain.append(Manual())
+
+    drive_to_point = DriveToPoint()
+    chain.append(drive_to_point)
+    _global['drive_to_point'] = drive_to_point
 
     chain.append(LowPassFilter())
 

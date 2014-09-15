@@ -1,6 +1,9 @@
+import math
+
 from amber.tests.hokuyo_example import HokuyoListener
 from navi.tools import logic
 from navi.components.component import Component
+
 
 __author__ = 'paoolo'
 
@@ -11,17 +14,21 @@ class Distance(Component, HokuyoListener):
     """
 
     def __init__(self):
-        super(Distance, self).__init__()
+        super(Distance, self).__init__(enable=True)
 
         self._scan = None
 
-        self._alpha = 0.6
         self._max_speed = 700.0
-        self._robo_width = 450.0
-        self._hard_limit = 250.0
-        self._soft_limit = 500.0
+
+        self._robo_width = 290.0
+
+        self._hard_limit = 300.0
+        self._soft_limit = 600.0
+
         self._scaner_dist_offset = 10.0
-        self._angle_range = 24.0
+        self._angle_range = math.radians(24.0)
+
+        self._alpha = 0.5
 
     def handle(self, scan):
         self._scan = scan
@@ -34,10 +41,11 @@ class Distance(Component, HokuyoListener):
             scan = self._scan
 
             if scan is not None:
-                min_distance, _ = logic.get_min_distance(scan, current_angle,
-                                                         self._scaner_dist_offset, self._angle_range)
-                if min_distance is not None:
+                min_distance, min_distance_angle = logic.get_min_distance(scan, current_angle,
+                                                                          self._scaner_dist_offset, self._angle_range)
+                # print 'min_distance: min: %d, %d' % (min_distance, math.degrees(min_distance_angle))
 
+                if min_distance is not None:
                     soft_limit = logic.get_soft_limit(current_speed, self._max_speed,
                                                       self._soft_limit, self._hard_limit, self._alpha)
 
@@ -50,6 +58,7 @@ class Distance(Component, HokuyoListener):
                         left, right = 0, 0
 
             else:
+                print 'distance: no scan!'
                 left, right = 0.0, 0.0
 
         return left, right
@@ -101,3 +110,19 @@ class Distance(Component, HokuyoListener):
     @soft_limit.setter
     def soft_limit(self, val):
         self._soft_limit = float(val)
+
+    @property
+    def scanner_dist_offset(self):
+        return self._scaner_dist_offset
+
+    @scanner_dist_offset.setter
+    def scanner_dist_offset(self, val):
+        self._scaner_dist_offset = float(val)
+
+    @property
+    def angle_range(self):
+        return math.degrees(self._angle_range)
+
+    @angle_range.setter
+    def angle_range(self, val):
+        self._angle_range = math.radians(float(val))

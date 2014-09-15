@@ -9,12 +9,12 @@ class LowPassFilter(Component):
     """
 
     def __init__(self):
-        super(LowPassFilter, self).__init__()
+        super(LowPassFilter, self).__init__(enable=True)
 
         self._old_left = 0.0
         self._old_right = 0.0
 
-        self._alpha = 0.0
+        self._alpha = 0.3
 
     def modify(self, left, right):
         left = self._low_pass_filter(left, self._old_left)

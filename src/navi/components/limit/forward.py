@@ -9,7 +9,7 @@ class Forward(Component):
     """
 
     def __init__(self):
-        super(Forward, self).__init__()
+        super(Forward, self).__init__(enable=True)
 
         self._max_speed = 700.0
 

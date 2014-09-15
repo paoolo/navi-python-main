@@ -9,7 +9,7 @@ class Reverse(Component):
     """
 
     def __init__(self):
-        super(Reverse, self).__init__()
+        super(Reverse, self).__init__(enable=True)
 
         self._rotating_speed = 200.0
         self._max_speed = 400.0

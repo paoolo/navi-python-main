@@ -2,10 +2,10 @@ __author__ = 'paoolo'
 
 
 class Component(object):
-    def __init__(self):
+    def __init__(self, enable):
         self._name = self.__class__.__name__
         self._index = 0
-        self._enable = False
+        self._enable = enable
 
     def modify(self, left, right):
         return left, right
