@@ -21,3 +21,5 @@ pushd ${__dir}
     ${__dir}/protoc.sh
     ${__dir}/repair.sh
 popd
+
+exit 0
